@@ -1,0 +1,35 @@
+{
+  "name": "ran-reference",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "worker:dev": "wrangler dev",
+    "worker:deploy": "wrangler deploy",
+    "db:create": "wrangler d1 create ran-reference-db",
+    "db:schema": "wrangler d1 execute ran-reference-db --local --file=./schema.sql",
+    "db:seed": "wrangler d1 execute ran-reference-db --local --file=./scripts/seed.sql",
+    "db:schema:remote": "wrangler d1 execute ran-reference-db --remote --file=./schema.sql",
+    "db:seed:remote": "wrangler d1 execute ran-reference-db --remote --file=./scripts/seed.sql",
+    "ingest": "node scripts/ingest.js"
+  },
+  "dependencies": {
+    "next": "14.2.35",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240815.0",
+    "@types/node": "^20.14.15",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.40",
+    "tailwindcss": "^3.4.7",
+    "typescript": "^5.5.4",
+    "wrangler": "^3.72.0"
+  }
+}

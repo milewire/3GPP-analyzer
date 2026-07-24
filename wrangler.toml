@@ -1,0 +1,17 @@
+name = "ran-reference-worker"
+main = "worker/index.ts"
+compatibility_date = "2024-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ran-reference-db"
+database_id = "placeholder-run-wrangler-d1-create"
+
+[[r2_buckets]]
+binding = "SPECS_BUCKET"
+bucket_name = "ran-reference-specs"
+
+[vars]
+NEXT_PUBLIC_API_URL = "http://localhost:8787"
+
+# Add secret: wrangler secret put ANTHROPIC_API_KEY
