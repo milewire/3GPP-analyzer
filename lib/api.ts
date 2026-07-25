@@ -6,8 +6,8 @@ import { API_BASE_URL as API_URL } from "./api-url";
  * Worker doesn't know about silently breaks lookups (spec pages, AI summaries)
  * and misrepresents the catalog. A failure here should surface as an error.
  */
-async function apiFetch<T>(path: string, revalidate = 300): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, { next: { revalidate } }).catch((err) => {
+async function apiFetch<T>(path: string, _revalidate = 300): Promise<T> {
+  const res = await fetch(`${API_URL}${path}`, { cache: "no-store" }).catch((err) => {
     throw new Error(
       `Cannot reach the spec API at ${API_URL}${path}. ` +
         `Start the Worker with \`npm run worker:dev\`, or set NEXT_PUBLIC_API_URL ` +
