@@ -106,7 +106,7 @@ export async function getSpec(specNumber: string, release?: string) {
 }
 
 export function getReleases() {
-  return apiFetch<{ releases: Release[] }>(`/api/releases`, 3600);
+  return apiFetch<{ releases: Release[] }>(`/api/releases`, 60);
 }
 
 export async function getRelease(release: string, params: Record<string, string | undefined> = {}) {
@@ -124,7 +124,7 @@ export async function getRelease(release: string, params: Record<string, string 
 }
 
 export function getTechnologies() {
-  return apiFetch<{ technologies: Technology[] }>(`/api/technologies`, 3600);
+  return apiFetch<{ technologies: Technology[] }>(`/api/technologies`, 60);
 }
 
 export async function getTechnology(slug: string) {
@@ -155,7 +155,7 @@ export function getStats() {
     glossaryTerms: number;
     technologies: number;
     releasesCovered: number;
-  }>(`/api/stats`, 3600);
+  }>(`/api/stats`, 60);
 }
 
 export function search(q: string) {
