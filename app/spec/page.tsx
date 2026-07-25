@@ -9,6 +9,7 @@ import SpecTable from "@/components/SpecTable";
 import SpecCard from "@/components/SpecCard";
 import { getSpec } from "@/lib/api";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 60;
 
 export async function generateMetadata({

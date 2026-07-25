@@ -12,6 +12,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/key-specs/" },
 };
 
+export const dynamic = "force-dynamic";
 export const revalidate = 300;
 
 const SERIES_FILTERS = ["All", "22", "23", "29", "33", "36", "38"];

@@ -5,6 +5,7 @@ import Breadcrumb from "@/components/Breadcrumb";
 import SpecCard from "@/components/SpecCard";
 import { getGlossaryTerm } from "@/lib/api";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 3600;
 
 export async function generateMetadata({

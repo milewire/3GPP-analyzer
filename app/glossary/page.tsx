@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/glossary/" },
 };
 
+export const dynamic = "force-dynamic";
 export const revalidate = 3600;
 
 const CATEGORIES: { label: string; emoji: string }[] = [

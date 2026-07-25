@@ -5,6 +5,7 @@ import Breadcrumb from "@/components/Breadcrumb";
 import SpecCard from "@/components/SpecCard";
 import { getRelease } from "@/lib/api";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 300;
 
 export async function generateMetadata({

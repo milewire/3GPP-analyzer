@@ -1,7 +1,17 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
 
 async function apiFetch<T>(path: string, revalidate = 300): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, { next: { revalidate } });
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}${path}`, {
+      next: { revalidate },
+      // Avoid hanging the Vercel build when the Worker URL is unset/unreachable.
+      signal: AbortSignal.timeout(8_000),
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    throw new Error(`API unreachable: ${path} (${API_URL}) — ${message}`);
+  }
   if (!res.ok) {
     throw new Error(`API request failed: ${path} (${res.status})`);
   }

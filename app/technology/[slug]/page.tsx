@@ -6,6 +6,7 @@ import SpecCard from "@/components/SpecCard";
 import { getTechnology, getTechnologies } from "@/lib/api";
 import { getTechContent, RELEASE_YEARS, TECH_RELEASE_TAGS } from "@/content";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 300;
 
 export async function generateMetadata({
