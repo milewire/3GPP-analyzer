@@ -16,7 +16,11 @@ async function remoteFetch<T>(path: string, revalidate = 300): Promise<T> {
   return (await res.json()) as T;
 }
 
-/** Prefer the Worker when configured; otherwise serve bundled seed data. */
+/**
+ * In production (remote Worker configured) always serve live data and let
+ * failures surface — never silently fall back to bundled seed content.
+ * The local seed is only used for local development when no Worker is set.
+ */
 async function apiFetch<T>(
   path: string,
   revalidate: number,
@@ -25,13 +29,7 @@ async function apiFetch<T>(
   if (!isRemoteApiConfigured()) {
     return localFallback();
   }
-
-  try {
-    return await remoteFetch<T>(path, revalidate);
-  } catch (err) {
-    console.warn(`[api] ${path} failed; using bundled seed data`, err);
-    return localFallback();
-  }
+  return remoteFetch<T>(path, revalidate);
 }
 
 export interface Spec {
@@ -122,16 +120,10 @@ export async function getSpec(specNumber: string, release?: string) {
     return data;
   }
 
-  try {
-    return await remoteFetch<{ spec: Spec; versions: Spec[]; related: Spec[] }>(
-      `/api/spec?${qs.toString()}`,
-      60
-    );
-  } catch {
-    const data = local.localSpec(specNumber, release);
-    if (!data) throw new Error(`Spec not found: ${specNumber}`);
-    return data;
-  }
+  return remoteFetch<{ spec: Spec; versions: Spec[]; related: Spec[] }>(
+    `/api/spec?${qs.toString()}`,
+    60
+  );
 }
 
 export function getReleases() {
@@ -150,18 +142,12 @@ export async function getRelease(release: string, params: Record<string, string 
     return data;
   }
 
-  try {
-    return await remoteFetch<{
-      release: Release;
-      specs: Spec[];
-      seriesList: string[];
-      pagination: Pagination;
-    }>(`/api/release/${encodeURIComponent(release)}?${qs.toString()}`, 300);
-  } catch {
-    const data = local.localRelease(release, params);
-    if (!data) throw new Error(`Release not found: ${release}`);
-    return data;
-  }
+  return remoteFetch<{
+    release: Release;
+    specs: Spec[];
+    seriesList: string[];
+    pagination: Pagination;
+  }>(`/api/release/${encodeURIComponent(release)}?${qs.toString()}`, 300);
 }
 
 export function getTechnologies() {
@@ -177,16 +163,7 @@ export async function getTechnology(slug: string) {
     return data;
   }
 
-  try {
-    return await remoteFetch<{ technology: Technology; specs: Spec[] }>(
-      `/api/technology/${slug}`,
-      300
-    );
-  } catch {
-    const data = local.localTechnology(slug);
-    if (!data) throw new Error(`Technology not found: ${slug}`);
-    return data;
-  }
+  return remoteFetch<{ technology: Technology; specs: Spec[] }>(`/api/technology/${slug}`, 300);
 }
 
 export function getGlossary(category?: string) {
@@ -204,16 +181,7 @@ export async function getGlossaryTerm(slug: string) {
     return data;
   }
 
-  try {
-    return await remoteFetch<{ term: GlossaryTerm; relatedSpecs: Spec[] }>(
-      `/api/glossary/${slug}`,
-      3600
-    );
-  } catch {
-    const data = local.localGlossaryTerm(slug);
-    if (!data) throw new Error(`Glossary term not found: ${slug}`);
-    return data;
-  }
+  return remoteFetch<{ term: GlossaryTerm; relatedSpecs: Spec[] }>(`/api/glossary/${slug}`, 3600);
 }
 
 export function getKeySpecs(series?: string) {
