@@ -29,6 +29,8 @@ Thumbs.db
 
 # Ingest / local state
 scripts/.ingest-checkpoint.json
+scripts/ingest-out.sql
+scripts/_probe-ftp.js
 scripts/.ingest-*.json
 
 # Vercel
