@@ -7,15 +7,24 @@ const RELEASE_ORDER = [
   "Rel-4", "Rel-2", "R99",
 ];
 
-export async function listReleases(env: Env): Promise<Response> {
+export async function listReleases(url: URL, env: Env): Promise<Response> {
+  // Hide stub/empty releases from the catalog by default. Pass ?all=1 to include them.
+  const includeEmpty = url.searchParams.get("all") === "1";
+
   const { results } = await env.DB.prepare(
     `SELECT r.*,
             (SELECT COUNT(*) FROM specs s WHERE s.release = r.name) AS spec_count
      FROM releases r`
   ).all();
-  const sorted = (results as Record<string, unknown>[]).sort(
+
+  let sorted = (results as Record<string, unknown>[]).sort(
     (a, b) => RELEASE_ORDER.indexOf(a.name as string) - RELEASE_ORDER.indexOf(b.name as string)
   );
+
+  if (!includeEmpty) {
+    sorted = sorted.filter((r) => (r.spec_count as number) > 0);
+  }
+
   return json({ releases: sorted });
 }
 

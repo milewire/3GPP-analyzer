@@ -1,5 +1,5 @@
 import type { Env } from "../types";
-import { json } from "../util";
+import { json, RELEASE_SORT_DESC } from "../util";
 
 export async function search(url: URL, env: Env): Promise<Response> {
   const q = url.searchParams.get("q");
@@ -9,8 +9,12 @@ export async function search(url: URL, env: Env): Promise<Response> {
   const like = `%${q}%`;
 
   const { results: specs } = await env.DB.prepare(
-    `SELECT * FROM specs WHERE spec_number LIKE ? OR title LIKE ? OR technology LIKE ?
-     GROUP BY spec_id ORDER BY citation_count DESC LIMIT 15`
+    `SELECT * FROM (
+       SELECT * FROM specs
+       WHERE spec_number LIKE ? OR title LIKE ? OR technology LIKE ?
+       ORDER BY ${RELEASE_SORT_DESC}
+     ) GROUP BY spec_id
+     ORDER BY citation_count DESC LIMIT 15`
   )
     .bind(like, like, like)
     .all();

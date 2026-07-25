@@ -148,10 +148,14 @@ export function getKeySpecs(series?: string) {
 }
 
 export function getStats() {
-  return apiFetch<{ specifications: number; glossaryTerms: number; technologies: number }>(
-    `/api/stats`,
-    3600
-  );
+  return apiFetch<{
+    specifications: number;
+    uniqueSpecifications: number;
+    specificationVersions: number;
+    glossaryTerms: number;
+    technologies: number;
+    releasesCovered: number;
+  }>(`/api/stats`, 3600);
 }
 
 export function search(q: string) {

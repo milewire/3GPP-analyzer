@@ -31,3 +31,10 @@ export function normalizeSpecId(input: string): string {
   }
   return stripped;
 }
+
+/** Numeric release sort — lexical DESC wrongly ranks Rel-8 above Rel-19. */
+export const RELEASE_SORT_DESC = `CASE
+  WHEN release IN ('R99', 'Rel-99') THEN 99
+  WHEN release LIKE 'Rel-%' THEN CAST(REPLACE(release, 'Rel-', '') AS INTEGER)
+  ELSE 0
+END DESC`;

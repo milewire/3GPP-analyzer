@@ -1,5 +1,5 @@
 import type { Env, SpecRow } from "../types";
-import { json, notFound, normalizeSpecId } from "../util";
+import { json, notFound, normalizeSpecId, RELEASE_SORT_DESC } from "../util";
 import { generateSpecSummary } from "../../lib/anthropic";
 import { isSummaryStale } from "../../lib/db";
 
@@ -19,7 +19,9 @@ export async function getAiSummary(url: URL, env: Env): Promise<Response> {
       .bind(normalized, release)
       .first<SpecRow>();
   } else {
-    spec = await env.DB.prepare(`SELECT * FROM specs WHERE spec_id = ? ORDER BY release DESC LIMIT 1`)
+    spec = await env.DB.prepare(
+      `SELECT * FROM specs WHERE spec_id = ? ORDER BY ${RELEASE_SORT_DESC} LIMIT 1`
+    )
       .bind(normalized)
       .first<SpecRow>();
   }

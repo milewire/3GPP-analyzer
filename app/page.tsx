@@ -5,6 +5,7 @@ import SpecCard from "@/components/SpecCard";
 import BrandLogo from "@/components/BrandLogo";
 import { getTechnologies, getSpecs, getStats } from "@/lib/api";
 import { buildPageTitle, siteConfig } from "@/lib/seo";
+import { CATALOG_COVERAGE_LABEL } from "@/lib/coverage";
 
 export const metadata: Metadata = {
   title: { absolute: buildPageTitle() },
@@ -24,6 +25,8 @@ export default async function HomePage() {
   ]);
 
   const featuredTech = technologies.filter((t) => HOMEPAGE_TECH_SLUGS.includes(t.slug));
+  const uniqueSpecs = stats.uniqueSpecifications ?? stats.specifications;
+  const versionRows = stats.specificationVersions ?? uniqueSpecs;
 
   return (
     <div>
@@ -42,6 +45,7 @@ export default async function HomePage() {
             Growing collection of 3GPP technical specifications with AI-powered search, version
             tracking, and intelligent categorization.
           </p>
+          <p className="mx-auto mt-3 max-w-2xl text-sm text-muted">{CATALOG_COVERAGE_LABEL}</p>
 
           <div className="mt-8">
             <SearchBar large />
@@ -124,20 +128,20 @@ export default async function HomePage() {
       <section className="bg-primary py-12 text-white">
         <div className="container-page grid grid-cols-2 gap-6 text-center sm:grid-cols-4">
           <div>
-            <div className="text-2xl font-extrabold sm:text-3xl">{stats.specifications.toLocaleString()}+</div>
-            <div className="mt-1 text-sm text-white/80">Specifications</div>
+            <div className="text-2xl font-extrabold sm:text-3xl">{uniqueSpecs.toLocaleString()}</div>
+            <div className="mt-1 text-sm text-white/80">Unique specs</div>
           </div>
           <div>
-            <div className="text-2xl font-extrabold sm:text-3xl">Version</div>
-            <div className="mt-1 text-sm text-white/80">Tracking</div>
+            <div className="text-2xl font-extrabold sm:text-3xl">{versionRows.toLocaleString()}</div>
+            <div className="mt-1 text-sm text-white/80">Release versions</div>
           </div>
           <div>
-            <div className="text-2xl font-extrabold sm:text-3xl">AI</div>
-            <div className="mt-1 text-sm text-white/80">Analysis</div>
+            <div className="text-2xl font-extrabold sm:text-3xl">{stats.releasesCovered?.toLocaleString() ?? "—"}</div>
+            <div className="mt-1 text-sm text-white/80">Releases covered</div>
           </div>
           <div>
-            <div className="text-2xl font-extrabold sm:text-3xl">Technology</div>
-            <div className="mt-1 text-sm text-white/80">Browse</div>
+            <div className="text-2xl font-extrabold sm:text-3xl">{stats.glossaryTerms.toLocaleString()}</div>
+            <div className="mt-1 text-sm text-white/80">Glossary terms</div>
           </div>
         </div>
       </section>

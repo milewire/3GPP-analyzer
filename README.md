@@ -85,11 +85,18 @@ terms so the site works out of the box.
 Crawl additional specs from the public 3GPP FTP archive:
 
 ```bash
-node scripts/ingest.js --series=22,23,25,33,36,37,38
+node scripts/ingest.js --series=22,23,24,29,33,36,37,38
 ```
 
-Progress is checkpointed in `scripts/.ingest-checkpoint.json` (gitignored) and requests
-are rate-limited to one per 500ms.
+Default coverage is **Rel-15–Rel-19** for those series. Progress is checkpointed in
+`scripts/.ingest-checkpoint.json` (gitignored) and requests are rate-limited.
+
+After a bulk ingest, tag taxonomy and fix stub titles:
+
+```bash
+npm run backfill:metadata
+node scripts/upload-sql-chunks.js scripts/backfill-out.sql 100
+```
 
 ## Project Structure
 

@@ -1,11 +1,12 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { getReleases } from "@/lib/api";
+import { CATALOG_COVERAGE_LABEL } from "@/lib/coverage";
 
 export const metadata: Metadata = {
   title: "3GPP Releases",
   description:
-    "Browse 3GPP releases from R99 through Rel-20, including freeze dates, key features, and linked specifications.",
+    "Browse 3GPP releases currently in the catalog, including freeze dates, key features, and linked specifications.",
   alternates: { canonical: "/releases/" },
 };
 
@@ -19,8 +20,10 @@ export default async function ReleasesPage() {
       <div className="mb-8 text-center">
         <h1 className="section-heading">3GPP Releases</h1>
         <p className="mt-2 text-secondary">
-          Browse specifications by release, from the original R99 UMTS release through 5G-Advanced.
+          Releases with specifications in the catalog. Empty or stub releases are hidden until they
+          are ingested.
         </p>
+        <p className="mt-2 text-sm text-muted">{CATALOG_COVERAGE_LABEL}</p>
       </div>
 
       <div className="flex flex-col gap-3">

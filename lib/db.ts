@@ -23,8 +23,16 @@ export async function findSpecByNumber(
       .first();
   }
 
+  const releaseSort = `CASE
+    WHEN release IN ('R99', 'Rel-99') THEN 99
+    WHEN release LIKE 'Rel-%' THEN CAST(REPLACE(release, 'Rel-', '') AS INTEGER)
+    ELSE 0
+  END DESC`;
+
   return db
-    .prepare(`SELECT * FROM specs WHERE spec_id = ? OR spec_number LIKE ? ORDER BY release DESC LIMIT 1`)
+    .prepare(
+      `SELECT * FROM specs WHERE spec_id = ? OR spec_number LIKE ? ORDER BY ${releaseSort} LIMIT 1`
+    )
     .bind(normalized, like)
     .first();
 }

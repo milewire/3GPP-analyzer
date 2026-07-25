@@ -39,3 +39,5 @@ scripts/.ingest-*.json
 # Misc
 *.pem
 .turbo/
+
+scripts/backfill-out.sql

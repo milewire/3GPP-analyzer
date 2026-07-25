@@ -1,5 +1,5 @@
 import type { Env } from "../types";
-import { json, notFound, normalizeSpecId } from "../util";
+import { json, notFound, normalizeSpecId, RELEASE_SORT_DESC } from "../util";
 
 const SORT_COLUMNS: Record<string, string> = {
   number: "spec_number",
@@ -64,9 +64,9 @@ export async function listSpecs(url: URL, env: Env): Promise<Response> {
 
   const whereClause = where.length ? `WHERE ${where.join(" AND ")}` : "";
 
-  // Dedupe multiple release-versions of the same spec_id down to their most
-  // recently updated row before counting/paginating.
-  const dedupedSubquery = `SELECT * FROM (SELECT * FROM specs ${whereClause} ORDER BY last_updated DESC) GROUP BY spec_id`;
+  // Dedupe release-versions of the same spec_id, preferring the newest release
+  // numerically (not lexically — Rel-8 must not beat Rel-19).
+  const dedupedSubquery = `SELECT * FROM (SELECT * FROM specs ${whereClause} ORDER BY ${RELEASE_SORT_DESC}) GROUP BY spec_id`;
 
   const countStmt = env.DB.prepare(`SELECT COUNT(*) as count FROM (${dedupedSubquery})`).bind(...args);
   const countResult = await countStmt.first<{ count: number }>();
@@ -106,7 +106,7 @@ export async function getSpec(url: URL, env: Env): Promise<Response> {
     ).bind(normalized, withPrefix, release);
   } else {
     stmt = env.DB.prepare(
-      `SELECT * FROM specs WHERE spec_id = ? OR spec_number LIKE ? ORDER BY release DESC LIMIT 1`
+      `SELECT * FROM specs WHERE spec_id = ? OR spec_number LIKE ? ORDER BY ${RELEASE_SORT_DESC} LIMIT 1`
     ).bind(normalized, withPrefix);
   }
 
@@ -114,13 +114,16 @@ export async function getSpec(url: URL, env: Env): Promise<Response> {
   if (!spec) return notFound("Specification not found");
 
   const versions = await env.DB.prepare(
-    `SELECT release, version, last_updated, status FROM specs WHERE spec_id = ? ORDER BY release DESC`
+    `SELECT release, version, last_updated, status FROM specs WHERE spec_id = ? ORDER BY ${RELEASE_SORT_DESC}`
   )
     .bind(spec.spec_id)
     .all();
 
   const related = await env.DB.prepare(
-    `SELECT * FROM specs WHERE series = ? AND spec_id != ? GROUP BY spec_id ORDER BY citation_count DESC LIMIT 8`
+    `SELECT * FROM (
+       SELECT * FROM specs WHERE series = ? AND spec_id != ? ORDER BY ${RELEASE_SORT_DESC}
+     ) GROUP BY spec_id
+     ORDER BY citation_count DESC LIMIT 8`
   )
     .bind(spec.series, spec.spec_id)
     .all();

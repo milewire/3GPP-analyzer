@@ -1,5 +1,6 @@
 import Link from "next/link";
 import BrandLogo from "./BrandLogo";
+import { CATALOG_COVERAGE_LABEL } from "@/lib/coverage";
 
 const QUICK_LINKS = [
   { label: "Technologies", href: "/technologies/" },
@@ -28,6 +29,7 @@ export default function Footer() {
             A growing collection of 3GPP technical specifications with AI-powered search, version
             tracking, and intelligent categorization.
           </p>
+          <p className="mt-2 text-xs text-muted">{CATALOG_COVERAGE_LABEL}</p>
         </div>
 
         <div>

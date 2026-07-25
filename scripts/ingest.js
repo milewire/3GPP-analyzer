@@ -16,11 +16,12 @@ const { DatabaseSync } = require("node:sqlite");
 const fs = require("node:fs");
 const path = require("node:path");
 const { findLocalD1Database } = require("./lib/local-d1");
+const { classifySpec } = require("./lib/classify-spec");
 
 const LATEST_URL = "https://www.3gpp.org/ftp/Specs/latest/";
 const HTML_INFO_URL = "https://www.3gpp.org/ftp/Specs/html-info/";
 const DEFAULT_RELEASES = ["Rel-19", "Rel-18", "Rel-17", "Rel-16", "Rel-15"];
-const DEFAULT_SERIES = ["22", "23", "24", "25", "29", "33", "36", "37", "38"];
+const DEFAULT_SERIES = ["22", "23", "24", "29", "33", "36", "37", "38"];
 const RATE_LIMIT_MS = 350;
 const CHECKPOINT_PATH = path.join(__dirname, ".ingest-checkpoint.json");
 const UA = { "User-Agent": "3gpp-sniffer-ingest/1.0" };
@@ -163,6 +164,11 @@ function sqlEscape(value) {
 }
 
 function upsertSpec(db, sqlLines, spec) {
+  const classified = classifySpec(spec) || {};
+  const technology = spec.technology ?? classified.technology ?? null;
+  const category = spec.category ?? classified.category ?? null;
+  const networkLayer = spec.network_layer ?? classified.network_layer ?? null;
+
   if (db) {
     const existing = db
       .prepare(`SELECT id FROM specs WHERE spec_id = ? AND release = ?`)
@@ -170,7 +176,9 @@ function upsertSpec(db, sqlLines, spec) {
 
     if (existing) {
       db.prepare(
-        `UPDATE specs SET version = ?, last_updated = ?, ftp_url = ?, title = ?, type = ?, spec_number = ?, status = ?, series = ? WHERE id = ?`
+        `UPDATE specs SET version = ?, last_updated = ?, ftp_url = ?, title = ?, type = ?, spec_number = ?, status = ?, series = ?,
+          technology = COALESCE(?, technology), category = COALESCE(?, category), network_layer = COALESCE(?, network_layer)
+         WHERE id = ?`
       ).run(
         spec.version,
         spec.last_updated,
@@ -180,13 +188,16 @@ function upsertSpec(db, sqlLines, spec) {
         spec.spec_number,
         spec.status,
         spec.series,
+        technology,
+        category,
+        networkLayer,
         existing.id
       );
     } else {
       db.prepare(
         `INSERT INTO specs
-          (spec_number, spec_id, type, series, title, release, version, last_updated, ftp_url, status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          (spec_number, spec_id, type, series, title, release, version, last_updated, ftp_url, status, technology, category, network_layer)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       ).run(
         spec.spec_number,
         spec.spec_id,
@@ -197,7 +208,10 @@ function upsertSpec(db, sqlLines, spec) {
         spec.version,
         spec.last_updated,
         spec.ftp_url,
-        spec.status
+        spec.status,
+        technology,
+        category,
+        networkLayer
       );
     }
   }
@@ -207,7 +221,7 @@ function upsertSpec(db, sqlLines, spec) {
       `DELETE FROM specs WHERE spec_id = ${sqlEscape(spec.spec_id)} AND release = ${sqlEscape(spec.release)};`
     );
     sqlLines.push(
-      `INSERT INTO specs (spec_number, spec_id, type, series, title, release, version, last_updated, ftp_url, status)
+      `INSERT INTO specs (spec_number, spec_id, type, series, title, release, version, last_updated, ftp_url, status, technology, category, network_layer)
        VALUES (
          ${sqlEscape(spec.spec_number)},
          ${sqlEscape(spec.spec_id)},
@@ -218,7 +232,10 @@ function upsertSpec(db, sqlLines, spec) {
          ${sqlEscape(spec.version)},
          ${sqlEscape(spec.last_updated)},
          ${sqlEscape(spec.ftp_url)},
-         ${sqlEscape(spec.status)}
+         ${sqlEscape(spec.status)},
+         ${sqlEscape(technology)},
+         ${sqlEscape(category)},
+         ${sqlEscape(networkLayer)}
        );`
     );
   }

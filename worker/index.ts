@@ -21,7 +21,7 @@ export default {
     try {
       if (pathname === "/api/specs") return listSpecs(url, env);
       if (pathname === "/api/spec") return getSpec(url, env);
-      if (pathname === "/api/releases") return listReleases(env);
+      if (pathname === "/api/releases") return listReleases(url, env);
       if (pathname.startsWith("/api/release/")) {
         const release = pathname.replace("/api/release/", "");
         return getRelease(release, url, env);

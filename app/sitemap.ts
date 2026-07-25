@@ -41,12 +41,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...technologies.map((tech) =>
         entry(`/technology/${tech.slug}/`, { changeFrequency: "weekly", priority: 0.75 })
       ),
-      ...releases.map((release) =>
-        entry(`/releases/${encodeURIComponent(release.name)}/`, {
-          changeFrequency: "weekly",
-          priority: 0.7,
-        })
-      ),
+      ...releases
+        .filter((release) => release.spec_count > 0)
+        .map((release) =>
+          entry(`/releases/${encodeURIComponent(release.name)}/`, {
+            changeFrequency: "weekly",
+            priority: 0.7,
+          })
+        ),
       ...terms.map((term) =>
         entry(`/glossary/${term.slug}/`, { changeFrequency: "monthly", priority: 0.6 })
       ),
