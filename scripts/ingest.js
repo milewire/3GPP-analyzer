@@ -2,40 +2,59 @@
 /**
  * scripts/ingest.js
  *
- * Crawls the public 3GPP FTP archive (https://www.3gpp.org/ftp/Specs/archive/),
- * discovers spec folders for the configured series, resolves each spec's latest
- * version, and upserts the results into the local D1 SQLite database used by
- * `wrangler dev` (.wrangler/state/v3/d1). Designed to be safely interruptible:
- * progress is checkpointed to disk and re-runs resume from where they left off.
+ * Crawls https://www.3gpp.org/ftp/Specs/latest/ (organized by release),
+ * scrapes official titles from html-info pages, and upserts into local D1
+ * and/or a SQL dump for remote D1 import.
  *
  * Usage:
- *   node scripts/ingest.js [--series=22,23,36,38] [--db=<path-to-sqlite-file>]
+ *   node scripts/ingest.js [--releases=Rel-19,Rel-18] [--series=36,38]
+ *                          [--limit=100] [--force]
+ *                          [--sql-out=scripts/ingest-out.sql]
  */
 
 const { DatabaseSync } = require("node:sqlite");
 const fs = require("node:fs");
 const path = require("node:path");
 
-const ARCHIVE_URL = "https://www.3gpp.org/ftp/Specs/archive/";
-const DEFAULT_SERIES = ["22", "23", "25", "33", "36", "37", "38"];
-const RATE_LIMIT_MS = 500;
+const LATEST_URL = "https://www.3gpp.org/ftp/Specs/latest/";
+const HTML_INFO_URL = "https://www.3gpp.org/ftp/Specs/html-info/";
+const DEFAULT_RELEASES = ["Rel-19", "Rel-18", "Rel-17", "Rel-16", "Rel-15"];
+const DEFAULT_SERIES = ["22", "23", "24", "25", "29", "33", "36", "37", "38"];
+const RATE_LIMIT_MS = 350;
 const CHECKPOINT_PATH = path.join(__dirname, ".ingest-checkpoint.json");
-
-const RELEASE_BY_MAJOR_VERSION = {
-  0: "Rel-99", 1: "Rel-99", 2: "Rel-4", 3: "R99", 4: "Rel-4", 5: "Rel-5", 6: "Rel-6",
-  7: "Rel-7", 8: "Rel-8", 9: "Rel-9", 10: "Rel-10", 11: "Rel-11", 12: "Rel-12",
-  13: "Rel-13", 14: "Rel-14", 15: "Rel-15", 16: "Rel-16", 17: "Rel-17", 18: "Rel-18",
-  19: "Rel-19", 20: "Rel-20",
-};
+const UA = { "User-Agent": "3gpp-sniffer-ingest/1.0" };
 
 function parseArgs() {
   const args = process.argv.slice(2);
-  const opts = { series: DEFAULT_SERIES, db: null };
+  const opts = {
+    releases: DEFAULT_RELEASES,
+    series: DEFAULT_SERIES,
+    db: null,
+    sqlOut: null,
+    limit: 0,
+    force: false,
+  };
   for (const arg of args) {
-    if (arg.startsWith("--series=")) {
-      opts.series = arg.replace("--series=", "").split(",").map((s) => s.trim());
+    if (arg.startsWith("--releases=")) {
+      opts.releases = arg
+        .replace("--releases=", "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+    } else if (arg.startsWith("--series=")) {
+      opts.series = arg
+        .replace("--series=", "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
     } else if (arg.startsWith("--db=")) {
       opts.db = arg.replace("--db=", "");
+    } else if (arg.startsWith("--sql-out=")) {
+      opts.sqlOut = arg.replace("--sql-out=", "");
+    } else if (arg.startsWith("--limit=")) {
+      opts.limit = parseInt(arg.replace("--limit=", ""), 10) || 0;
+    } else if (arg === "--force") {
+      opts.force = true;
     }
   }
   return opts;
@@ -50,71 +69,85 @@ function loadCheckpoint() {
     try {
       return JSON.parse(fs.readFileSync(CHECKPOINT_PATH, "utf-8"));
     } catch {
-      return { completedSeries: [], completedSpecs: {} };
+      return { completed: {} };
     }
   }
-  return { completedSeries: [], completedSpecs: {} };
+  return { completed: {} };
 }
 
 function saveCheckpoint(checkpoint) {
   fs.writeFileSync(CHECKPOINT_PATH, JSON.stringify(checkpoint, null, 2));
 }
 
-/** Extracts href targets from a plain HTML directory listing. */
 function extractLinks(html) {
   const links = [];
   const regex = /href="([^"]+)"/gi;
   let match;
-  while ((match = regex.exec(html)) !== null) {
-    links.push(match[1]);
-  }
+  while ((match = regex.exec(html)) !== null) links.push(match[1]);
   return links;
 }
 
-async function fetchDirectory(url) {
-  const res = await fetch(url, { headers: { "User-Agent": "3gpp-sniffer-ingest/1.0" } });
-  if (!res.ok) {
-    throw new Error(`Failed to fetch ${url}: ${res.status} ${res.statusText}`);
+async function fetchText(url) {
+  const res = await fetch(url, { headers: UA });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText} for ${url}`);
+  return res.text();
+}
+
+/** Decode 3GPP FTP version codes: "17.5.0" or letter form "j60" (j=19). */
+function parseVersionCode(code) {
+  if (!code) return null;
+  if (/^\d{1,2}\.\d{1,2}\.\d{1,2}$/.test(code)) return code;
+  if (!/^[0-9a-z]{3}$/i.test(code)) return null;
+  const decode = (c) => {
+    const ch = c.toLowerCase();
+    if (/[0-9]/.test(ch)) return parseInt(ch, 10);
+    return 10 + (ch.charCodeAt(0) - 97); // a=10
+  };
+  return `${decode(code[0])}.${decode(code[1])}.${decode(code[2])}`;
+}
+
+/** Parse "38101-1-j60.zip" or "38331-j00.zip" into { specId, version, filename }. */
+function parseLatestFilename(href) {
+  const filename = href.split("/").pop() || "";
+  const match = filename.match(/^(\d{4,5}(?:-\d+)?)[-_]([0-9a-z]{3})\.(zip|docx?)$/i);
+  if (!match) return null;
+  const compact = match[1];
+  const version = parseVersionCode(match[2]);
+  if (!version) return null;
+  const base = compact.split("-")[0];
+  const suffix = compact.includes("-") ? `-${compact.split("-").slice(1).join("-")}` : "";
+  const specId = `${base.slice(0, 2)}.${base.slice(2)}${suffix}`;
+  return { specId, version, filename, compact };
+}
+
+const titleCache = new Map();
+
+async function fetchSpecMetadata(specId) {
+  if (titleCache.has(specId)) return titleCache.get(specId);
+  const compact = specId.replace(/\./g, "").replace(/-.*/, "");
+  // Part specs like 38.101-1 use html-info 38101-1.htm
+  const htmlName = specId.includes("-")
+    ? `${specId.replace(/\./g, "")}`
+    : compact;
+  const url = `${HTML_INFO_URL}${htmlName}.htm`;
+  try {
+    const html = await fetchText(url);
+    await sleep(RATE_LIMIT_MS);
+    const titleMatch = html.match(/id=["']titleVal["'][^>]*>([^<]+)</i);
+    const typeMatch =
+      html.match(/id=["']typeVal["'][^>]*>([^<]+)</i) || html.match(/\b(TS|TR)\b/);
+    const meta = {
+      title: titleMatch ? titleMatch[1].trim() : null,
+      type: (typeMatch ? typeMatch[1] || typeMatch[0] : "TS").trim().toUpperCase(),
+    };
+    if (meta.type !== "TS" && meta.type !== "TR") meta.type = "TS";
+    titleCache.set(specId, meta);
+    return meta;
+  } catch {
+    const meta = { title: null, type: "TS" };
+    titleCache.set(specId, meta);
+    return meta;
   }
-  const html = await res.text();
-  return extractLinks(html);
-}
-
-/** Derives a dotted spec number ("38.331") from an FTP folder name ("38331/"). */
-function specNumberFromFolder(folderName, seriesPrefix) {
-  const clean = folderName.replace(/\/$/, "");
-  if (!/^\d{4,6}(-\d+)?$/.test(clean)) return null;
-  const base = clean.split("-")[0];
-  if (!base.startsWith(seriesPrefix)) return null;
-  const dotted = `${base.slice(0, 2)}.${base.slice(2)}`;
-  return clean.includes("-") ? `${dotted}-${clean.split("-")[1]}` : dotted;
-}
-
-/** Parses a version filename fragment like "-h50" or "-17.5.0" into a version string. */
-function parseVersionFromFilename(filename) {
-  // 3GPP FTP filenames commonly encode version as three base-36-ish digits, e.g.
-  // "38331-i50.zip" => major 'i' (18th letter offset) style encoding varies by era;
-  // fall back to any dotted numeric version found directly in the name.
-  const dotted = filename.match(/(\d{1,2}\.\d{1,2}\.\d{1,2})/);
-  if (dotted) return dotted[1];
-  return null;
-}
-
-function releaseFromVersion(version) {
-  if (!version) return "Unknown";
-  const major = parseInt(version.split(".")[0], 10);
-  return RELEASE_BY_MAJOR_VERSION[major] || `Rel-${major}`;
-}
-
-function openDatabase(dbPath) {
-  const resolved = dbPath || findLocalD1Database();
-  if (!resolved) {
-    throw new Error(
-      "Could not locate a local D1 SQLite file. Run `npm run db:schema` first, or pass --db=<path>."
-    );
-  }
-  console.log(`Using local D1 database: ${resolved}`);
-  return new DatabaseSync(resolved);
 }
 
 function findLocalD1Database() {
@@ -124,115 +157,192 @@ function findLocalD1Database() {
   return files.length ? path.join(dir, files[0]) : null;
 }
 
-function upsertSpec(db, spec) {
-  const existing = db
-    .prepare(`SELECT id FROM specs WHERE spec_id = ? AND release = ?`)
-    .get(spec.spec_id, spec.release);
+function openDatabase(dbPath) {
+  const resolved = dbPath || findLocalD1Database();
+  if (!resolved) {
+    throw new Error(
+      "Could not locate a local D1 SQLite file. Run `npm run db:schema` first, or pass --db=<path>, or use --sql-out only."
+    );
+  }
+  console.log(`Using local D1 database: ${resolved}`);
+  return new DatabaseSync(resolved);
+}
 
-  if (existing) {
-    db.prepare(
-      `UPDATE specs SET version = ?, last_updated = ?, ftp_url = ?, title = ? WHERE id = ?`
-    ).run(spec.version, spec.last_updated, spec.ftp_url, spec.title, existing.id);
-  } else {
-    db.prepare(
-      `INSERT INTO specs
-        (spec_number, spec_id, type, series, title, release, version, last_updated, ftp_url, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active')`
-    ).run(
-      spec.spec_number,
-      spec.spec_id,
-      spec.type,
-      spec.series,
-      spec.title,
-      spec.release,
-      spec.version,
-      spec.last_updated,
-      spec.ftp_url
+function sqlEscape(value) {
+  if (value === null || value === undefined) return "NULL";
+  return `'${String(value).replace(/'/g, "''")}'`;
+}
+
+function upsertSpec(db, sqlLines, spec) {
+  if (db) {
+    const existing = db
+      .prepare(`SELECT id FROM specs WHERE spec_id = ? AND release = ?`)
+      .get(spec.spec_id, spec.release);
+
+    if (existing) {
+      db.prepare(
+        `UPDATE specs SET version = ?, last_updated = ?, ftp_url = ?, title = ?, type = ?, spec_number = ?, status = ?, series = ? WHERE id = ?`
+      ).run(
+        spec.version,
+        spec.last_updated,
+        spec.ftp_url,
+        spec.title,
+        spec.type,
+        spec.spec_number,
+        spec.status,
+        spec.series,
+        existing.id
+      );
+    } else {
+      db.prepare(
+        `INSERT INTO specs
+          (spec_number, spec_id, type, series, title, release, version, last_updated, ftp_url, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      ).run(
+        spec.spec_number,
+        spec.spec_id,
+        spec.type,
+        spec.series,
+        spec.title,
+        spec.release,
+        spec.version,
+        spec.last_updated,
+        spec.ftp_url,
+        spec.status
+      );
+    }
+  }
+
+  if (sqlLines) {
+    sqlLines.push(
+      `DELETE FROM specs WHERE spec_id = ${sqlEscape(spec.spec_id)} AND release = ${sqlEscape(spec.release)};`
+    );
+    sqlLines.push(
+      `INSERT INTO specs (spec_number, spec_id, type, series, title, release, version, last_updated, ftp_url, status)
+       VALUES (
+         ${sqlEscape(spec.spec_number)},
+         ${sqlEscape(spec.spec_id)},
+         ${sqlEscape(spec.type)},
+         ${sqlEscape(spec.series)},
+         ${sqlEscape(spec.title)},
+         ${sqlEscape(spec.release)},
+         ${sqlEscape(spec.version)},
+         ${sqlEscape(spec.last_updated)},
+         ${sqlEscape(spec.ftp_url)},
+         ${sqlEscape(spec.status)}
+       );`
     );
   }
 }
 
-async function ingestSeries(db, series, checkpoint) {
-  console.log(`\n=== Series ${series} ===`);
-  const seriesUrl = `${ARCHIVE_URL}${series}_series/`;
-  const links = await fetchDirectory(seriesUrl);
-  await sleep(RATE_LIMIT_MS);
+async function ingestReleaseSeries(db, sqlLines, release, series, checkpoint, opts) {
+  const seriesUrl = `${LATEST_URL}${release}/${series}_series/`;
+  let links;
+  try {
+    links = extractLinks(await fetchText(seriesUrl));
+    await sleep(RATE_LIMIT_MS);
+  } catch (err) {
+    console.warn(`  skip ${release}/${series}: ${err.message}`);
+    return 0;
+  }
 
-  const specFolders = links
-    .map((link) => specNumberFromFolder(link, series))
-    .filter((s) => s !== null);
+  const files = links
+    .map((href) => {
+      const parsed = parseLatestFilename(href);
+      if (!parsed) return null;
+      return { ...parsed, href, ftpUrl: href.startsWith("http") ? href : `${seriesUrl}${href}` };
+    })
+    .filter(Boolean);
 
-  console.log(`Found ${specFolders.length} candidate spec folders in series ${series}`);
+  console.log(`  ${release}/${series}_series: ${files.length} files`);
 
-  for (const specNumber of specFolders) {
-    const folderKey = `${series}/${specNumber}`;
-    if (checkpoint.completedSpecs[folderKey]) {
-      continue; // already processed in a previous run
-    }
+  let written = 0;
+  for (const file of files) {
+    if (opts.limit && written >= opts.limit) break;
 
-    const rawFolder = specNumber.replace(".", "").replace("-", "-");
-    const specUrl = `${seriesUrl}${rawFolder}/`;
+    const key = `${release}/${file.specId}`;
+    if (!opts.force && checkpoint.completed[key]) continue;
 
     try {
-      const files = await fetchDirectory(specUrl);
-      await sleep(RATE_LIMIT_MS);
+      const meta = await fetchSpecMetadata(file.specId);
+      const type = meta.type || "TS";
+      const title = meta.title || `3GPP ${type} ${file.specId}`;
 
-      const docFiles = files.filter((f) => /\.(zip|docx?)$/i.test(f));
-      if (docFiles.length === 0) {
-        checkpoint.completedSpecs[folderKey] = true;
-        continue;
-      }
-
-      // Sort lexically descending to approximate "latest version" from the filename.
-      docFiles.sort().reverse();
-      const latestFile = docFiles[0];
-      const version = parseVersionFromFilename(latestFile) || "0.0.0";
-      const release = releaseFromVersion(version);
-      const type = "TS"; // refined later once title metadata is scraped from the spec status page
-
-      upsertSpec(db, {
-        spec_number: `${type} ${specNumber}`,
-        spec_id: specNumber,
+      upsertSpec(db, sqlLines, {
+        spec_number: `${type} ${file.specId}`,
+        spec_id: file.specId,
         type,
         series,
-        title: `3GPP ${specNumber} (title pending metadata scrape)`,
+        title,
         release,
-        version,
+        version: file.version,
         last_updated: new Date().toISOString().slice(0, 10),
-        ftp_url: specUrl,
+        ftp_url: file.ftpUrl,
+        status: "Active",
       });
 
-      checkpoint.completedSpecs[folderKey] = true;
+      checkpoint.completed[key] = true;
       saveCheckpoint(checkpoint);
+      written += 1;
       process.stdout.write(".");
     } catch (err) {
-      console.warn(`\nSkipping ${specNumber}: ${err.message}`);
+      console.warn(`\n  Skipping ${file.specId}: ${err.message}`);
     }
   }
 
-  checkpoint.completedSeries.push(series);
-  saveCheckpoint(checkpoint);
-  console.log(`\nCompleted series ${series}`);
+  if (written) process.stdout.write("\n");
+  return written;
 }
 
 async function main() {
   const opts = parseArgs();
-  const db = openDatabase(opts.db);
-  const checkpoint = loadCheckpoint();
 
-  console.log(`Ingesting series: ${opts.series.join(", ")}`);
-  console.log(`Already completed: ${checkpoint.completedSeries.join(", ") || "none"}`);
-
-  for (const series of opts.series) {
-    if (checkpoint.completedSeries.includes(series)) {
-      console.log(`Skipping already-completed series ${series}`);
-      continue;
-    }
-    await ingestSeries(db, series, checkpoint);
+  let localDb = null;
+  try {
+    localDb = openDatabase(opts.db);
+  } catch (err) {
+    if (!opts.sqlOut) throw err;
+    console.warn(`No local DB (${err.message}); writing SQL only.`);
   }
 
-  console.log("\nIngest complete.");
-  db.close();
+  const sqlLines = opts.sqlOut ? [] : null;
+  const checkpoint = opts.force ? { completed: {} } : loadCheckpoint();
+
+  console.log(`Releases: ${opts.releases.join(", ")}`);
+  console.log(`Series:   ${opts.series.join(", ")}`);
+  if (opts.limit) console.log(`Limit:    ${opts.limit} specs per release/series`);
+  if (opts.sqlOut) console.log(`SQL out:  ${opts.sqlOut}`);
+
+  let total = 0;
+  for (const release of opts.releases) {
+    console.log(`\n=== ${release} ===`);
+    for (const series of opts.series) {
+      total += await ingestReleaseSeries(localDb, sqlLines, release, series, checkpoint, opts);
+    }
+  }
+
+  if (localDb) {
+    localDb
+      .prepare(
+        `UPDATE releases SET spec_count = (
+           SELECT COUNT(*) FROM specs WHERE specs.release = releases.name
+         )`
+      )
+      .run();
+    localDb.close();
+  }
+
+  if (sqlLines) {
+    sqlLines.push(
+      `UPDATE releases SET spec_count = (SELECT COUNT(*) FROM specs WHERE specs.release = releases.name);`
+    );
+    const outPath = path.isAbsolute(opts.sqlOut) ? opts.sqlOut : path.join(process.cwd(), opts.sqlOut);
+    fs.mkdirSync(path.dirname(outPath), { recursive: true });
+    fs.writeFileSync(outPath, sqlLines.join("\n") + "\n");
+    console.log(`Wrote SQL to ${outPath}`);
+  }
+
+  console.log(`\nIngest complete. Specs written this run: ${total}`);
 }
 
 main().catch((err) => {

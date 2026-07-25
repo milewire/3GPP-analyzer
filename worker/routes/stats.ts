@@ -2,9 +2,7 @@ import type { Env } from "../types";
 import { json } from "../util";
 
 export async function getStats(env: Env): Promise<Response> {
-  const specCount = await env.DB.prepare(`SELECT COALESCE(SUM(spec_count), 0) as total FROM releases`).first<{
-    total: number;
-  }>();
+  const specCount = await env.DB.prepare(`SELECT COUNT(*) as count FROM specs`).first<{ count: number }>();
   const glossaryCount = await env.DB.prepare(`SELECT COUNT(*) as count FROM glossary_terms`).first<{
     count: number;
   }>();
@@ -13,7 +11,7 @@ export async function getStats(env: Env): Promise<Response> {
   }>();
 
   return json({
-    specifications: specCount?.total ?? 0,
+    specifications: specCount?.count ?? 0,
     glossaryTerms: glossaryCount?.count ?? 0,
     technologies: technologyCount?.count ?? 0,
   });

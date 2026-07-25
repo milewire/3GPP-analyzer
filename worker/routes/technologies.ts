@@ -2,7 +2,12 @@ import type { Env } from "../types";
 import { json, notFound } from "../util";
 
 export async function listTechnologies(env: Env): Promise<Response> {
-  const { results } = await env.DB.prepare(`SELECT * FROM technologies ORDER BY id ASC`).all();
+  const { results } = await env.DB.prepare(
+    `SELECT t.*,
+            (SELECT COUNT(DISTINCT s.spec_id) FROM specs s WHERE s.technology = t.name) AS spec_count
+     FROM technologies t
+     ORDER BY t.id ASC`
+  ).all();
   return json({ technologies: results });
 }
 

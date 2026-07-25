@@ -17,7 +17,8 @@
     "db:seed": "wrangler d1 execute 3gpp-sniffer-db --local --file=./scripts/seed.sql",
     "db:schema:remote": "wrangler d1 execute 3gpp-sniffer-db --remote --file=./schema.sql",
     "db:seed:remote": "wrangler d1 execute 3gpp-sniffer-db --remote --file=./scripts/seed.sql",
-    "ingest": "node scripts/ingest.js"
+    "ingest": "node scripts/ingest.js",
+    "ingest:rel19": "node scripts/ingest.js --releases=Rel-19 --series=22,23,24,29,33,36,37,38 --sql-out=scripts/ingest-out.sql --force"
   },
   "dependencies": {
     "next": "14.2.35",

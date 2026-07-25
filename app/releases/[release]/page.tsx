@@ -73,7 +73,11 @@ export default async function ReleaseDetailPage({
         {release.description && <p className="mt-3 max-w-2xl text-secondary">{release.description}</p>}
         <div className="mt-3 flex flex-wrap gap-4 text-sm text-muted">
           {release.freeze_date && <span>Frozen {release.freeze_date}</span>}
-          <span>{release.spec_count.toLocaleString()} specifications</span>
+          <span>
+            {pagination.total.toLocaleString()} specification
+            {pagination.total === 1 ? "" : "s"}
+            {searchParams.series ? ` in series ${searchParams.series}` : ""}
+          </span>
         </div>
         {release.key_features && (
           <p className="mt-2 text-sm text-secondary">
@@ -111,7 +115,9 @@ export default async function ReleaseDetailPage({
         ))}
         {specs.length === 0 && (
           <div className="rounded-lg border border-bordera bg-surface p-10 text-center text-secondary">
-            No specifications seeded for this release/series yet.
+            No specifications in the catalog for {release.name}
+            {searchParams.series ? ` series ${searchParams.series}` : ""} yet. Specs appear here after
+            live ingest from the 3GPP archive.
           </div>
         )}
       </div>

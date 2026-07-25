@@ -8,7 +8,11 @@ const RELEASE_ORDER = [
 ];
 
 export async function listReleases(env: Env): Promise<Response> {
-  const { results } = await env.DB.prepare(`SELECT * FROM releases`).all();
+  const { results } = await env.DB.prepare(
+    `SELECT r.*,
+            (SELECT COUNT(*) FROM specs s WHERE s.release = r.name) AS spec_count
+     FROM releases r`
+  ).all();
   const sorted = (results as Record<string, unknown>[]).sort(
     (a, b) => RELEASE_ORDER.indexOf(a.name as string) - RELEASE_ORDER.indexOf(b.name as string)
   );
@@ -17,7 +21,14 @@ export async function listReleases(env: Env): Promise<Response> {
 
 export async function getRelease(release: string, url: URL, env: Env): Promise<Response> {
   const name = decodeURIComponent(release);
-  const releaseRow = await env.DB.prepare(`SELECT * FROM releases WHERE name = ?`).bind(name).first();
+  const releaseRow = await env.DB.prepare(
+    `SELECT r.*,
+            (SELECT COUNT(*) FROM specs s WHERE s.release = r.name) AS spec_count
+     FROM releases r
+     WHERE r.name = ?`
+  )
+    .bind(name)
+    .first();
   if (!releaseRow) return notFound("Release not found");
 
   const series = url.searchParams.get("series");
