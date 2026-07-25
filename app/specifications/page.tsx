@@ -13,7 +13,6 @@ export const metadata: Metadata = {
 };
 
 export const dynamic = "force-dynamic";
-export const revalidate = 60;
 
 const SORT_OPTIONS = [
   { value: "number", label: "Spec Number" },

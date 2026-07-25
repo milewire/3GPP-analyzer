@@ -1,21 +1,45 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
 
-async function apiFetch<T>(path: string, revalidate = 300): Promise<T> {
-  let res: Response;
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+const EMPTY_PAGINATION: Pagination = { page: 1, limit: 20, total: 0, totalPages: 0 };
+
+function isLocalApiUrl(url: string) {
+  return /localhost|127\.0\.0\.1/i.test(url);
+}
+
+function shouldSkipApiFetch() {
+  // Vercel build has no Worker on 127.0.0.1 — skip rather than crash prerender.
+  const duringBuild = process.env.NEXT_PHASE === "phase-production-build";
+  return duringBuild && isLocalApiUrl(API_URL);
+}
+
+async function apiFetch<T>(path: string, revalidate = 300, fallback?: T): Promise<T> {
+  if (shouldSkipApiFetch() && fallback !== undefined) {
+    return fallback;
+  }
+
   try {
-    res = await fetch(`${API_URL}${path}`, {
+    const res = await fetch(`${API_URL}${path}`, {
       next: { revalidate },
-      // Avoid hanging the Vercel build when the Worker URL is unset/unreachable.
-      signal: AbortSignal.timeout(8_000),
+      cache: "no-store",
     });
+    if (!res.ok) {
+      throw new Error(`API request failed: ${path} (${res.status})`);
+    }
+    return (await res.json()) as T;
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    throw new Error(`API unreachable: ${path} (${API_URL}) — ${message}`);
+    if (fallback !== undefined) {
+      console.warn(`[api] ${path} unavailable (${API_URL}); using fallback`);
+      return fallback;
+    }
+    throw err instanceof Error ? err : new Error(String(err));
   }
-  if (!res.ok) {
-    throw new Error(`API request failed: ${path} (${res.status})`);
-  }
-  return res.json() as Promise<T>;
 }
 
 export interface Spec {
@@ -77,19 +101,16 @@ export interface GlossaryTerm {
   evolution: string | null;
 }
 
-export interface Pagination {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-}
-
 export function getSpecs(params: Record<string, string | undefined>) {
   const qs = new URLSearchParams();
   Object.entries(params).forEach(([k, v]) => {
     if (v) qs.set(k, v);
   });
-  return apiFetch<{ specs: Spec[]; pagination: Pagination }>(`/api/specs?${qs.toString()}`, 60);
+  return apiFetch<{ specs: Spec[]; pagination: Pagination }>(
+    `/api/specs?${qs.toString()}`,
+    60,
+    { specs: [], pagination: EMPTY_PAGINATION }
+  );
 }
 
 export function getSpec(specNumber: string, release?: string) {
@@ -99,7 +120,7 @@ export function getSpec(specNumber: string, release?: string) {
 }
 
 export function getReleases() {
-  return apiFetch<{ releases: Release[] }>(`/api/releases`, 3600);
+  return apiFetch<{ releases: Release[] }>(`/api/releases`, 3600, { releases: [] });
 }
 
 export function getRelease(release: string, params: Record<string, string | undefined> = {}) {
@@ -114,7 +135,7 @@ export function getRelease(release: string, params: Record<string, string | unde
 }
 
 export function getTechnologies() {
-  return apiFetch<{ technologies: Technology[] }>(`/api/technologies`, 3600);
+  return apiFetch<{ technologies: Technology[] }>(`/api/technologies`, 3600, { technologies: [] });
 }
 
 export function getTechnology(slug: string) {
@@ -124,7 +145,7 @@ export function getTechnology(slug: string) {
 export function getGlossary(category?: string) {
   const qs = new URLSearchParams();
   if (category) qs.set("category", category);
-  return apiFetch<{ terms: GlossaryTerm[] }>(`/api/glossary?${qs.toString()}`, 3600);
+  return apiFetch<{ terms: GlossaryTerm[] }>(`/api/glossary?${qs.toString()}`, 3600, { terms: [] });
 }
 
 export function getGlossaryTerm(slug: string) {
@@ -134,13 +155,21 @@ export function getGlossaryTerm(slug: string) {
 export function getKeySpecs(series?: string) {
   const qs = new URLSearchParams();
   if (series) qs.set("series", series);
-  return apiFetch<{ specs: Spec[] }>(`/api/key-specs?${qs.toString()}`, 300);
+  return apiFetch<{ specs: Spec[] }>(`/api/key-specs?${qs.toString()}`, 300, { specs: [] });
 }
 
 export function getStats() {
-  return apiFetch<{ specifications: number; glossaryTerms: number; technologies: number }>(`/api/stats`, 3600);
+  return apiFetch<{ specifications: number; glossaryTerms: number; technologies: number }>(
+    `/api/stats`,
+    3600,
+    { specifications: 0, glossaryTerms: 0, technologies: 0 }
+  );
 }
 
 export function search(q: string) {
-  return apiFetch<{ specs: Spec[]; terms: GlossaryTerm[] }>(`/api/search?q=${encodeURIComponent(q)}`, 30);
+  return apiFetch<{ specs: Spec[]; terms: GlossaryTerm[] }>(
+    `/api/search?q=${encodeURIComponent(q)}`,
+    30,
+    { specs: [], terms: [] }
+  );
 }

@@ -15,7 +15,6 @@ export const metadata: Metadata = {
 const HOMEPAGE_TECH_SLUGS = ["lte", "lte-advanced", "lte-advanced-pro", "5g", "5g-advanced", "ims", "epc", "security"];
 
 export const dynamic = "force-dynamic";
-export const revalidate = 300;
 
 export default async function HomePage() {
   const emptySpecs = { specs: [] as Awaited<ReturnType<typeof getSpecs>>["specs"], pagination: { page: 1, limit: 10, total: 0, totalPages: 0 } };

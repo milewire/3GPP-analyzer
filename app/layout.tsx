@@ -5,6 +5,9 @@ import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { absoluteUrl, buildPageTitle, getSiteUrl, siteConfig } from "@/lib/seo";
 
+// Entire app depends on the Cloudflare Worker API — never statically prerender at build.
+export const dynamic = "force-dynamic";
+
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,

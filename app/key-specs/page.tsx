@@ -13,7 +13,6 @@ export const metadata: Metadata = {
 };
 
 export const dynamic = "force-dynamic";
-export const revalidate = 300;
 
 const SERIES_FILTERS = ["All", "22", "23", "29", "33", "36", "38"];
 
