@@ -5,7 +5,7 @@ compatibility_date = "2024-01-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "3gpp-sniffer-db"
-database_id = "placeholder-run-wrangler-d1-create"
+database_id = "678d2c8b-2dcf-4bc4-b454-38d2d59bee50"
 
 [[r2_buckets]]
 binding = "SPECS_BUCKET"
