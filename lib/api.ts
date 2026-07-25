@@ -1,35 +1,24 @@
-import * as local from "./local-data";
+import { API_BASE_URL as API_URL } from "./api-url";
 
-const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL;
-const API_URL = configuredApiUrl || "http://localhost:8787";
+/**
+ * Every page reads live 3GPP data from the Worker. There is deliberately no
+ * bundled-seed fallback: serving placeholder counts and spec ids that the
+ * Worker doesn't know about silently breaks lookups (spec pages, AI summaries)
+ * and misrepresents the catalog. A failure here should surface as an error.
+ */
+async function apiFetch<T>(path: string, revalidate = 300): Promise<T> {
+  const res = await fetch(`${API_URL}${path}`, { next: { revalidate } }).catch((err) => {
+    throw new Error(
+      `Cannot reach the spec API at ${API_URL}${path}. ` +
+        `Start the Worker with \`npm run worker:dev\`, or set NEXT_PUBLIC_API_URL ` +
+        `to the deployed Worker. (${err?.message ?? err})`
+    );
+  });
 
-function isRemoteApiConfigured() {
-  if (!configuredApiUrl) return false;
-  return !/localhost|127\.0\.0\.1/i.test(configuredApiUrl);
-}
-
-async function remoteFetch<T>(path: string, revalidate = 300): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, { next: { revalidate } });
   if (!res.ok) {
     throw new Error(`API request failed: ${path} (${res.status})`);
   }
   return (await res.json()) as T;
-}
-
-/**
- * In production (remote Worker configured) always serve live data and let
- * failures surface — never silently fall back to bundled seed content.
- * The local seed is only used for local development when no Worker is set.
- */
-async function apiFetch<T>(
-  path: string,
-  revalidate: number,
-  localFallback: () => T
-): Promise<T> {
-  if (!isRemoteApiConfigured()) {
-    return localFallback();
-  }
-  return remoteFetch<T>(path, revalidate);
 }
 
 export interface Spec {
@@ -103,31 +92,21 @@ export function getSpecs(params: Record<string, string | undefined>) {
   Object.entries(params).forEach(([k, v]) => {
     if (v) qs.set(k, v);
   });
-  return apiFetch<{ specs: Spec[]; pagination: Pagination }>(
-    `/api/specs?${qs.toString()}`,
-    60,
-    () => local.localSpecs(params)
-  );
+  return apiFetch<{ specs: Spec[]; pagination: Pagination }>(`/api/specs?${qs.toString()}`, 60);
 }
 
 export async function getSpec(specNumber: string, release?: string) {
   const qs = new URLSearchParams({ specNumber });
   if (release) qs.set("release", release);
 
-  if (!isRemoteApiConfigured()) {
-    const data = local.localSpec(specNumber, release);
-    if (!data) throw new Error(`Spec not found: ${specNumber}`);
-    return data;
-  }
-
-  return remoteFetch<{ spec: Spec; versions: Spec[]; related: Spec[] }>(
+  return apiFetch<{ spec: Spec; versions: Spec[]; related: Spec[] }>(
     `/api/spec?${qs.toString()}`,
     60
   );
 }
 
 export function getReleases() {
-  return apiFetch<{ releases: Release[] }>(`/api/releases`, 3600, () => local.localReleases());
+  return apiFetch<{ releases: Release[] }>(`/api/releases`, 3600);
 }
 
 export async function getRelease(release: string, params: Record<string, string | undefined> = {}) {
@@ -136,13 +115,7 @@ export async function getRelease(release: string, params: Record<string, string 
     if (v) qs.set(k, v);
   });
 
-  if (!isRemoteApiConfigured()) {
-    const data = local.localRelease(release, params);
-    if (!data) throw new Error(`Release not found: ${release}`);
-    return data;
-  }
-
-  return remoteFetch<{
+  return apiFetch<{
     release: Release;
     specs: Spec[];
     seriesList: string[];
@@ -151,59 +124,39 @@ export async function getRelease(release: string, params: Record<string, string 
 }
 
 export function getTechnologies() {
-  return apiFetch<{ technologies: Technology[] }>(`/api/technologies`, 3600, () =>
-    local.localTechnologies()
-  );
+  return apiFetch<{ technologies: Technology[] }>(`/api/technologies`, 3600);
 }
 
 export async function getTechnology(slug: string) {
-  if (!isRemoteApiConfigured()) {
-    const data = local.localTechnology(slug);
-    if (!data) throw new Error(`Technology not found: ${slug}`);
-    return data;
-  }
-
-  return remoteFetch<{ technology: Technology; specs: Spec[] }>(`/api/technology/${slug}`, 300);
+  return apiFetch<{ technology: Technology; specs: Spec[] }>(`/api/technology/${slug}`, 300);
 }
 
 export function getGlossary(category?: string) {
   const qs = new URLSearchParams();
   if (category) qs.set("category", category);
-  return apiFetch<{ terms: GlossaryTerm[] }>(`/api/glossary?${qs.toString()}`, 3600, () =>
-    local.localGlossary(category)
-  );
+  return apiFetch<{ terms: GlossaryTerm[] }>(`/api/glossary?${qs.toString()}`, 3600);
 }
 
 export async function getGlossaryTerm(slug: string) {
-  if (!isRemoteApiConfigured()) {
-    const data = local.localGlossaryTerm(slug);
-    if (!data) throw new Error(`Glossary term not found: ${slug}`);
-    return data;
-  }
-
-  return remoteFetch<{ term: GlossaryTerm; relatedSpecs: Spec[] }>(`/api/glossary/${slug}`, 3600);
+  return apiFetch<{ term: GlossaryTerm; relatedSpecs: Spec[] }>(`/api/glossary/${slug}`, 3600);
 }
 
 export function getKeySpecs(series?: string) {
   const qs = new URLSearchParams();
   if (series) qs.set("series", series);
-  return apiFetch<{ specs: Spec[] }>(`/api/key-specs?${qs.toString()}`, 300, () =>
-    local.localKeySpecs(series)
-  );
+  return apiFetch<{ specs: Spec[] }>(`/api/key-specs?${qs.toString()}`, 300);
 }
 
 export function getStats() {
   return apiFetch<{ specifications: number; glossaryTerms: number; technologies: number }>(
     `/api/stats`,
-    3600,
-    () => local.localStats()
+    3600
   );
 }
 
 export function search(q: string) {
   return apiFetch<{ specs: Spec[]; terms: GlossaryTerm[] }>(
     `/api/search?q=${encodeURIComponent(q)}`,
-    30,
-    () => local.localSearch(q)
+    30
   );
 }

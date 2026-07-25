@@ -15,6 +15,7 @@
 const { DatabaseSync } = require("node:sqlite");
 const fs = require("node:fs");
 const path = require("node:path");
+const { findLocalD1Database } = require("./lib/local-d1");
 
 const LATEST_URL = "https://www.3gpp.org/ftp/Specs/latest/";
 const HTML_INFO_URL = "https://www.3gpp.org/ftp/Specs/html-info/";
@@ -150,20 +151,8 @@ async function fetchSpecMetadata(specId) {
   }
 }
 
-function findLocalD1Database() {
-  const dir = path.join(__dirname, "..", ".wrangler", "state", "v3", "d1", "miniflare-D1DatabaseObject");
-  if (!fs.existsSync(dir)) return null;
-  const files = fs.readdirSync(dir).filter((f) => f.endsWith(".sqlite"));
-  return files.length ? path.join(dir, files[0]) : null;
-}
-
 function openDatabase(dbPath) {
   const resolved = dbPath || findLocalD1Database();
-  if (!resolved) {
-    throw new Error(
-      "Could not locate a local D1 SQLite file. Run `npm run db:schema` first, or pass --db=<path>, or use --sql-out only."
-    );
-  }
   console.log(`Using local D1 database: ${resolved}`);
   return new DatabaseSync(resolved);
 }

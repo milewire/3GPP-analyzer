@@ -3,16 +3,14 @@
 const { DatabaseSync } = require("node:sqlite");
 const fs = require("node:fs");
 const path = require("node:path");
+const { findLocalD1Database } = require("./lib/local-d1");
 
 const releaseFilter = process.argv.find((a) => a.startsWith("--release="))?.split("=")[1];
 const out =
   process.argv.find((a) => a.startsWith("--out="))?.split("=")[1] ||
   path.join(__dirname, "ingest-out.sql");
 
-const dir = path.join(__dirname, "..", ".wrangler", "state", "v3", "d1", "miniflare-D1DatabaseObject");
-const dbFile = fs.readdirSync(dir).find((f) => f.endsWith(".sqlite"));
-if (!dbFile) throw new Error("No local D1 sqlite found");
-const db = new DatabaseSync(path.join(dir, dbFile));
+const db = new DatabaseSync(findLocalD1Database());
 
 function esc(v) {
   if (v === null || v === undefined) return "NULL";

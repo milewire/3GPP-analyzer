@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
+import { API_BASE_URL as API_URL } from "@/lib/api-url";
 
 export default function AISummary({
   specId,
