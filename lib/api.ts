@@ -13,33 +13,28 @@ function isLocalApiUrl(url: string) {
   return /localhost|127\.0\.0\.1/i.test(url);
 }
 
-function shouldSkipApiFetch() {
-  // Vercel build has no Worker on 127.0.0.1 — skip rather than crash prerender.
-  const duringBuild = process.env.NEXT_PHASE === "phase-production-build";
-  return duringBuild && isLocalApiUrl(API_URL);
+function isBuildPhase() {
+  return process.env.NEXT_PHASE === "phase-production-build";
 }
 
 async function apiFetch<T>(path: string, revalidate = 300, fallback?: T): Promise<T> {
-  if (shouldSkipApiFetch() && fallback !== undefined) {
+  // The Worker never exists during a Vercel build, so serve placeholder data
+  // rather than crashing prerender. At runtime failures must stay visible.
+  if (isBuildPhase() && isLocalApiUrl(API_URL) && fallback !== undefined) {
     return fallback;
   }
 
-  try {
-    const res = await fetch(`${API_URL}${path}`, {
-      next: { revalidate },
-      cache: "no-store",
-    });
-    if (!res.ok) {
-      throw new Error(`API request failed: ${path} (${res.status})`);
-    }
-    return (await res.json()) as T;
-  } catch (err) {
-    if (fallback !== undefined) {
-      console.warn(`[api] ${path} unavailable (${API_URL}); using fallback`);
-      return fallback;
-    }
-    throw err instanceof Error ? err : new Error(String(err));
+  const res = await fetch(`${API_URL}${path}`, { next: { revalidate } }).catch((err) => {
+    throw new Error(
+      `Cannot reach the spec API at ${API_URL}${path}. ` +
+        `Set NEXT_PUBLIC_API_URL to your deployed Worker. (${err?.message ?? err})`
+    );
+  });
+
+  if (!res.ok) {
+    throw new Error(`API request failed: ${path} (${res.status})`);
   }
+  return (await res.json()) as T;
 }
 
 export interface Spec {
