@@ -103,7 +103,14 @@ are rate-limited to one per 500ms.
 | `scripts/` | Seed SQL + FTP ingest |
 | `public/` | Static assets (logo marks) |
 
-## License / Disclaimer
+## License
+
+Source code is released under the [MIT License](./LICENSE).
+
+The license covers this project's code only. Specification content is the property
+of 3GPP and remains subject to 3GPP's own terms of use.
+
+## Disclaimer
 
 Data sourced from the [3GPP FTP server](https://www.3gpp.org/ftp/Specs/archive/).
 This is an unofficial community tool, not affiliated with 3GPP or any mobile operator.
