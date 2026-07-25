@@ -17,13 +17,10 @@ const HOMEPAGE_TECH_SLUGS = ["lte", "lte-advanced", "lte-advanced-pro", "5g", "5
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const emptySpecs = { specs: [] as Awaited<ReturnType<typeof getSpecs>>["specs"], pagination: { page: 1, limit: 10, total: 0, totalPages: 0 } };
-  const emptyTech = { technologies: [] as Awaited<ReturnType<typeof getTechnologies>>["technologies"] };
-
   const [{ technologies }, specsResult, stats] = await Promise.all([
-    getTechnologies().catch(() => emptyTech),
-    getSpecs({ sort: "updated", limit: "10" }).catch(() => emptySpecs),
-    getStats().catch(() => ({ specifications: 0, glossaryTerms: 0, technologies: 0 })),
+    getTechnologies(),
+    getSpecs({ sort: "updated", limit: "10" }),
+    getStats(),
   ]);
 
   const featuredTech = technologies.filter((t) => HOMEPAGE_TECH_SLUGS.includes(t.slug));

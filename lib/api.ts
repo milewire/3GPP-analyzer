@@ -1,40 +1,37 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
+import * as local from "./local-data";
 
-export interface Pagination {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
+const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = configuredApiUrl || "http://localhost:8787";
+
+function isRemoteApiConfigured() {
+  if (!configuredApiUrl) return false;
+  return !/localhost|127\.0\.0\.1/i.test(configuredApiUrl);
 }
 
-const EMPTY_PAGINATION: Pagination = { page: 1, limit: 20, total: 0, totalPages: 0 };
-
-function isLocalApiUrl(url: string) {
-  return /localhost|127\.0\.0\.1/i.test(url);
-}
-
-function isBuildPhase() {
-  return process.env.NEXT_PHASE === "phase-production-build";
-}
-
-async function apiFetch<T>(path: string, revalidate = 300, fallback?: T): Promise<T> {
-  // The Worker never exists during a Vercel build, so serve placeholder data
-  // rather than crashing prerender. At runtime failures must stay visible.
-  if (isBuildPhase() && isLocalApiUrl(API_URL) && fallback !== undefined) {
-    return fallback;
-  }
-
-  const res = await fetch(`${API_URL}${path}`, { next: { revalidate } }).catch((err) => {
-    throw new Error(
-      `Cannot reach the spec API at ${API_URL}${path}. ` +
-        `Set NEXT_PUBLIC_API_URL to your deployed Worker. (${err?.message ?? err})`
-    );
-  });
-
+async function remoteFetch<T>(path: string, revalidate = 300): Promise<T> {
+  const res = await fetch(`${API_URL}${path}`, { next: { revalidate } });
   if (!res.ok) {
     throw new Error(`API request failed: ${path} (${res.status})`);
   }
   return (await res.json()) as T;
+}
+
+/** Prefer the Worker when configured; otherwise serve bundled seed data. */
+async function apiFetch<T>(
+  path: string,
+  revalidate: number,
+  localFallback: () => T
+): Promise<T> {
+  if (!isRemoteApiConfigured()) {
+    return localFallback();
+  }
+
+  try {
+    return await remoteFetch<T>(path, revalidate);
+  } catch (err) {
+    console.warn(`[api] ${path} failed; using bundled seed data`, err);
+    return localFallback();
+  }
 }
 
 export interface Spec {
@@ -96,6 +93,13 @@ export interface GlossaryTerm {
   evolution: string | null;
 }
 
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
 export function getSpecs(params: Record<string, string | undefined>) {
   const qs = new URLSearchParams();
   Object.entries(params).forEach(([k, v]) => {
@@ -104,60 +108,127 @@ export function getSpecs(params: Record<string, string | undefined>) {
   return apiFetch<{ specs: Spec[]; pagination: Pagination }>(
     `/api/specs?${qs.toString()}`,
     60,
-    { specs: [], pagination: EMPTY_PAGINATION }
+    () => local.localSpecs(params)
   );
 }
 
-export function getSpec(specNumber: string, release?: string) {
+export async function getSpec(specNumber: string, release?: string) {
   const qs = new URLSearchParams({ specNumber });
   if (release) qs.set("release", release);
-  return apiFetch<{ spec: Spec; versions: Spec[]; related: Spec[] }>(`/api/spec?${qs.toString()}`, 60);
+
+  if (!isRemoteApiConfigured()) {
+    const data = local.localSpec(specNumber, release);
+    if (!data) throw new Error(`Spec not found: ${specNumber}`);
+    return data;
+  }
+
+  try {
+    return await remoteFetch<{ spec: Spec; versions: Spec[]; related: Spec[] }>(
+      `/api/spec?${qs.toString()}`,
+      60
+    );
+  } catch {
+    const data = local.localSpec(specNumber, release);
+    if (!data) throw new Error(`Spec not found: ${specNumber}`);
+    return data;
+  }
 }
 
 export function getReleases() {
-  return apiFetch<{ releases: Release[] }>(`/api/releases`, 3600, { releases: [] });
+  return apiFetch<{ releases: Release[] }>(`/api/releases`, 3600, () => local.localReleases());
 }
 
-export function getRelease(release: string, params: Record<string, string | undefined> = {}) {
+export async function getRelease(release: string, params: Record<string, string | undefined> = {}) {
   const qs = new URLSearchParams();
   Object.entries(params).forEach(([k, v]) => {
     if (v) qs.set(k, v);
   });
-  return apiFetch<{ release: Release; specs: Spec[]; seriesList: string[]; pagination: Pagination }>(
-    `/api/release/${encodeURIComponent(release)}?${qs.toString()}`,
-    300
-  );
+
+  if (!isRemoteApiConfigured()) {
+    const data = local.localRelease(release, params);
+    if (!data) throw new Error(`Release not found: ${release}`);
+    return data;
+  }
+
+  try {
+    return await remoteFetch<{
+      release: Release;
+      specs: Spec[];
+      seriesList: string[];
+      pagination: Pagination;
+    }>(`/api/release/${encodeURIComponent(release)}?${qs.toString()}`, 300);
+  } catch {
+    const data = local.localRelease(release, params);
+    if (!data) throw new Error(`Release not found: ${release}`);
+    return data;
+  }
 }
 
 export function getTechnologies() {
-  return apiFetch<{ technologies: Technology[] }>(`/api/technologies`, 3600, { technologies: [] });
+  return apiFetch<{ technologies: Technology[] }>(`/api/technologies`, 3600, () =>
+    local.localTechnologies()
+  );
 }
 
-export function getTechnology(slug: string) {
-  return apiFetch<{ technology: Technology; specs: Spec[] }>(`/api/technology/${slug}`, 300);
+export async function getTechnology(slug: string) {
+  if (!isRemoteApiConfigured()) {
+    const data = local.localTechnology(slug);
+    if (!data) throw new Error(`Technology not found: ${slug}`);
+    return data;
+  }
+
+  try {
+    return await remoteFetch<{ technology: Technology; specs: Spec[] }>(
+      `/api/technology/${slug}`,
+      300
+    );
+  } catch {
+    const data = local.localTechnology(slug);
+    if (!data) throw new Error(`Technology not found: ${slug}`);
+    return data;
+  }
 }
 
 export function getGlossary(category?: string) {
   const qs = new URLSearchParams();
   if (category) qs.set("category", category);
-  return apiFetch<{ terms: GlossaryTerm[] }>(`/api/glossary?${qs.toString()}`, 3600, { terms: [] });
+  return apiFetch<{ terms: GlossaryTerm[] }>(`/api/glossary?${qs.toString()}`, 3600, () =>
+    local.localGlossary(category)
+  );
 }
 
-export function getGlossaryTerm(slug: string) {
-  return apiFetch<{ term: GlossaryTerm; relatedSpecs: Spec[] }>(`/api/glossary/${slug}`, 3600);
+export async function getGlossaryTerm(slug: string) {
+  if (!isRemoteApiConfigured()) {
+    const data = local.localGlossaryTerm(slug);
+    if (!data) throw new Error(`Glossary term not found: ${slug}`);
+    return data;
+  }
+
+  try {
+    return await remoteFetch<{ term: GlossaryTerm; relatedSpecs: Spec[] }>(
+      `/api/glossary/${slug}`,
+      3600
+    );
+  } catch {
+    const data = local.localGlossaryTerm(slug);
+    if (!data) throw new Error(`Glossary term not found: ${slug}`);
+    return data;
+  }
 }
 
 export function getKeySpecs(series?: string) {
   const qs = new URLSearchParams();
   if (series) qs.set("series", series);
-  return apiFetch<{ specs: Spec[] }>(`/api/key-specs?${qs.toString()}`, 300, { specs: [] });
+  return apiFetch<{ specs: Spec[] }>(`/api/key-specs?${qs.toString()}`, 300, () =>
+    local.localKeySpecs(series)
+  );
 }
 
 export function getStats() {
   return apiFetch<{ specifications: number; glossaryTerms: number; technologies: number }>(
     `/api/stats`,
     3600,
-    { specifications: 0, glossaryTerms: 0, technologies: 0 }
+    () => local.localStats()
   );
 }
 
@@ -165,6 +236,6 @@ export function search(q: string) {
   return apiFetch<{ specs: Spec[]; terms: GlossaryTerm[] }>(
     `/api/search?q=${encodeURIComponent(q)}`,
     30,
-    { specs: [], terms: [] }
+    () => local.localSearch(q)
   );
 }
