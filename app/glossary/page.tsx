@@ -1,7 +1,15 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import Breadcrumb from "@/components/Breadcrumb";
 import GlossaryCard from "@/components/GlossaryCard";
 import { getGlossary } from "@/lib/api";
+
+export const metadata: Metadata = {
+  title: "RAN Glossary",
+  description:
+    "Definitions for 3GPP and RAN terms across core network, radio access, physical layer, security, and protocols.",
+  alternates: { canonical: "/glossary/" },
+};
 
 export const revalidate = 3600;
 
@@ -57,7 +65,7 @@ export default async function GlossaryPage({ searchParams }: { searchParams: { c
         <Link
           href="/glossary/"
           className={`shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition ${
-            !activeCategory ? "bg-accent text-darktext" : "border border-borderb text-secondary hover:border-primary"
+            !activeCategory ? "bg-accent text-black" : "border border-borderb text-secondary hover:border-primary"
           }`}
         >
           All ({terms.length})
@@ -68,7 +76,7 @@ export default async function GlossaryPage({ searchParams }: { searchParams: { c
             href={`/glossary/?category=${encodeURIComponent(cat.label)}`}
             className={`shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition ${
               activeCategory === cat.label
-                ? "bg-accent text-darktext"
+                ? "bg-accent text-black"
                 : "border border-borderb text-secondary hover:border-primary"
             }`}
           >
@@ -91,7 +99,7 @@ export default async function GlossaryPage({ searchParams }: { searchParams: { c
           </section>
         ))}
         {filtered.length === 0 && (
-          <div className="rounded-lg border border-bordera bg-white p-10 text-center text-secondary">
+          <div className="rounded-lg border border-bordera bg-surface p-10 text-center text-secondary">
             No terms found in this category yet.
           </div>
         )}

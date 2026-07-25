@@ -1,19 +1,22 @@
-# RAN Reference
+# 3GPP Sniffer
 
-A 3GPP specification database for RAN engineers — browse, search, and understand 3GPP
-technical specifications, with AI-powered summaries, version tracking, and technology guides.
+AI-powered 3GPP specification database for RAN and telecom engineers — browse,
+search, and understand technical specifications with version tracking, release
+timelines, technology guides, glossary terms, and Claude-powered AI summaries.
+
+**Repo:** [github.com/milewire/3GPP-sniffer](https://github.com/milewire/3GPP-sniffer)
 
 ## Stack
 
-- **Frontend:** Next.js 14 (App Router) + Tailwind CSS
+- **Frontend:** Next.js 14 (App Router) + Tailwind CSS (light/dark theme)
 - **API:** Cloudflare Workers
 - **Database:** Cloudflare D1 (SQLite at the edge)
-- **Document storage (future):** Cloudflare R2
+- **Object storage (planned):** Cloudflare R2
 - **AI summaries:** Anthropic Claude API (`claude-sonnet-4-6`)
 
 ## Local Development
 
-Requires Node 18+ and the Wrangler CLI (installed as a dev dependency).
+Requires Node 18+ (Wrangler is included as a dev dependency).
 
 ```bash
 npm install
@@ -22,32 +25,35 @@ npm install
 npm run db:schema
 npm run db:seed
 
-# 2. Start the Worker API (Cloudflare Workers, port 8787)
+# 2. Start the Worker API (port 8787)
 npm run worker:dev
 
 # 3. In a second terminal, start the Next.js frontend (port 3000)
 npm run dev
 ```
 
-Then visit http://localhost:3000.
+Visit http://localhost:3000.
 
-The Next.js app reads `NEXT_PUBLIC_API_URL` (defaults to `http://localhost:8787`) to reach
-the Worker API.
+### Environment
 
-### AI Summaries
+| Variable | Where | Purpose |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | `.dev.vars` (local) / Worker secret (prod) | AI summary generation |
+| `NEXT_PUBLIC_API_URL` | Next.js env | Worker API base URL (default `http://localhost:8787`) |
+| `NEXT_PUBLIC_SITE_URL` | Next.js env | Canonical site URL for SEO, sitemap, Open Graph |
 
-AI summary generation requires an Anthropic API key. For local development, copy
-`.dev.vars.example` to `.dev.vars` and fill in `ANTHROPIC_API_KEY`; `wrangler dev` will pick
-it up automatically. For production, set it as a Worker secret:
+Copy `.dev.vars.example` → `.dev.vars` and set `ANTHROPIC_API_KEY` for local AI summaries.
+Copy `.env.example` → `.env.local` for frontend public env vars when deploying.
 
 ```bash
+# Production Worker secret
 wrangler secret put ANTHROPIC_API_KEY
 ```
 
 ## Deployment
 
 ```bash
-# One-time: create the D1 database and update the database_id in wrangler.toml
+# One-time: create the D1 database and update database_id in wrangler.toml
 npm run db:create
 
 # Push schema + seed data to the remote database
@@ -57,33 +63,47 @@ npm run db:seed:remote
 # Deploy the Worker
 npm run worker:deploy
 
-# Deploy the Next.js app to your host of choice (Vercel, Cloudflare Pages, etc.),
-# setting NEXT_PUBLIC_API_URL to your deployed Worker URL.
+# Build / deploy the Next.js app (Vercel, Cloudflare Pages, etc.)
+# Set NEXT_PUBLIC_API_URL to the deployed Worker URL
+# Set NEXT_PUBLIC_SITE_URL to your production domain
 npm run build
 ```
 
+## SEO
+
+- Root metadata, Open Graph, and Twitter cards in `app/layout.tsx`
+- JSON-LD (`WebSite` + `SoftwareApplication`) on every page
+- `app/sitemap.ts` — static routes plus technologies, releases, and glossary terms
+- `app/robots.ts` — allows crawl and points to `/sitemap.xml`
+- Per-route `metadata` / `generateMetadata` on major pages
+
 ## Data Ingestion
 
-`scripts/seed.sql` pre-populates the database with the 50 most-cited key specifications,
-all 3GPP releases, technology areas, and 30+ RAN glossary terms, so the site is fully
-functional out of the box.
+`scripts/seed.sql` loads key specifications, releases, technology areas, and glossary
+terms so the site works out of the box.
 
-To crawl the full 3GPP FTP archive for additional specifications:
+Crawl additional specs from the public 3GPP FTP archive:
 
 ```bash
 node scripts/ingest.js --series=22,23,25,33,36,37,38
 ```
 
-The script writes progress to `scripts/.ingest-checkpoint.json` so it can resume safely if
-interrupted, and rate-limits itself to one request per 500ms against the 3GPP FTP server.
+Progress is checkpointed in `scripts/.ingest-checkpoint.json` (gitignored) and requests
+are rate-limited to one per 500ms.
 
 ## Project Structure
 
-See `app/`, `components/`, `worker/`, `content/`, and `lib/` for the Next.js pages, shared UI
-components, Cloudflare Worker API, rich technology-page content, and shared helpers,
-respectively.
+| Path | Purpose |
+|---|---|
+| `app/` | Next.js App Router pages, sitemap, robots |
+| `components/` | Shared UI (nav, cards, filters, theme toggle) |
+| `content/` | Hand-written technology guide content |
+| `lib/` | API client, SEO helpers, Anthropic client |
+| `worker/` | Cloudflare Worker API routes |
+| `scripts/` | Seed SQL + FTP ingest |
+| `public/` | Static assets (logo marks) |
 
----
+## License / Disclaimer
 
-Data sourced from the 3GPP FTP server. This is an unofficial community tool, not affiliated
-with 3GPP or Cingular Wireless.
+Data sourced from the [3GPP FTP server](https://www.3gpp.org/ftp/Specs/archive/).
+This is an unofficial community tool, not affiliated with 3GPP or any mobile operator.

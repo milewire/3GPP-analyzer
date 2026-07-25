@@ -10,7 +10,7 @@ export default function GlossaryCard({ term }: { term: GlossaryTerm }) {
   return (
     <Link
       href={`/glossary/${term.slug}/`}
-      className="block rounded-lg border border-bordera bg-white p-4 transition hover:border-primary"
+      className="block rounded-lg border border-bordera bg-surface p-4 transition hover:border-primary"
     >
       <div className="mb-1 flex flex-wrap items-center gap-2">
         <span className="font-bold text-darktext">{term.term}</span>

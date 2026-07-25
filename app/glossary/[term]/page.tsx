@@ -1,10 +1,31 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import Breadcrumb from "@/components/Breadcrumb";
 import SpecCard from "@/components/SpecCard";
 import { getGlossaryTerm } from "@/lib/api";
 
 export const revalidate = 3600;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { term: string };
+}): Promise<Metadata> {
+  try {
+    const { term } = await getGlossaryTerm(params.term);
+    const title = `${term.term} — ${term.full_name}`;
+    const description = term.definition.slice(0, 160);
+    return {
+      title,
+      description,
+      alternates: { canonical: `/glossary/${term.slug}/` },
+      openGraph: { title, description },
+    };
+  } catch {
+    return { title: "Glossary term" };
+  }
+}
 
 export default async function GlossaryTermPage({ params }: { params: { term: string } }) {
   let data;
@@ -45,7 +66,7 @@ export default async function GlossaryTermPage({ params }: { params: { term: str
             </span>
           )}
           {term.intro_release && (
-            <span className="rounded-full border border-borderb bg-white px-3 py-1 text-xs font-semibold text-secondary">
+            <span className="rounded-full border border-borderb bg-surface px-3 py-1 text-xs font-semibold text-secondary">
               Introduced {term.intro_release}
             </span>
           )}
@@ -62,7 +83,7 @@ export default async function GlossaryTermPage({ params }: { params: { term: str
           {evolutionEntries.length > 0 && (
             <section>
               <h2 className="mb-3 text-lg font-bold text-darktext">Evolution Across Releases</h2>
-              <div className="rounded-lg border border-bordera bg-white p-4">
+              <div className="rounded-lg border border-bordera bg-surface p-4">
                 <ul className="space-y-2 text-sm leading-relaxed text-secondary">
                   {evolutionEntries.map((entry, i) => (
                     <li key={i} className="border-l-2 border-primary pl-3">
@@ -88,7 +109,7 @@ export default async function GlossaryTermPage({ params }: { params: { term: str
 
         <aside>
           {relatedTermSlugs.length > 0 && (
-            <div className="rounded-lg border border-bordera bg-white p-4">
+            <div className="rounded-lg border border-bordera bg-surface p-4">
               <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted">Related Terms</h3>
               <div className="flex flex-wrap gap-2">
                 {relatedTermSlugs.map((slug) => (

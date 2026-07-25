@@ -1,13 +1,39 @@
+# Dependencies / build
 node_modules/
 .next/
 out/
 dist/
-.wrangler/
-.dev.vars
-.env
-.env.local
-*.log
+build/
+coverage/
 *.tsbuildinfo
-.DS_Store
-scripts/.ingest-checkpoint.json
+
+# Cloudflare / Wrangler
+.wrangler/
 .mf/
+.dev.vars
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+!.dev.vars.example
+
+# Logs / OS / IDE
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Ingest / local state
+scripts/.ingest-checkpoint.json
+scripts/.ingest-*.json
+
+# Vercel
+.vercel/
+
+# Misc
+*.pem
+.turbo/

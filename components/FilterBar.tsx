@@ -59,14 +59,14 @@ export default function FilterBar() {
   }
 
   return (
-    <div className="flex flex-col gap-4 rounded-lg border border-bordera bg-white p-4">
+    <div className="flex flex-col gap-4 rounded-lg border border-bordera bg-surface p-4">
       <div className="flex flex-wrap items-center gap-3">
-        <label className="flex items-center gap-2 text-sm text-secondary">
+        <label className="flex flex-1 items-center gap-2 text-sm text-secondary sm:flex-none">
           Release
           <select
             value={currentRelease}
             onChange={(e) => setParam("release", e.target.value)}
-            className="rounded border border-borderb bg-white px-2 py-1.5 text-sm text-darktext"
+            className="min-w-0 flex-1 rounded border border-borderb bg-surface px-2 py-1.5 text-sm text-darktext sm:flex-none"
           >
             {RELEASES.map((r) => (
               <option key={r} value={r}>
@@ -76,12 +76,12 @@ export default function FilterBar() {
           </select>
         </label>
 
-        <label className="flex items-center gap-2 text-sm text-secondary">
+        <label className="flex flex-1 items-center gap-2 text-sm text-secondary sm:flex-none">
           Category
           <select
             value={currentCategory}
             onChange={(e) => setParam("category", e.target.value)}
-            className="rounded border border-borderb bg-white px-2 py-1.5 text-sm text-darktext"
+            className="min-w-0 flex-1 rounded border border-borderb bg-surface px-2 py-1.5 text-sm text-darktext sm:flex-none"
           >
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>
@@ -91,12 +91,12 @@ export default function FilterBar() {
           </select>
         </label>
 
-        <label className="flex items-center gap-2 text-sm text-secondary">
+        <label className="flex flex-1 items-center gap-2 text-sm text-secondary sm:flex-none">
           Network Layer
           <select
             value={currentNetworkLayer}
             onChange={(e) => setParam("network_layer", e.target.value)}
-            className="rounded border border-borderb bg-white px-2 py-1.5 text-sm text-darktext"
+            className="min-w-0 flex-1 rounded border border-borderb bg-surface px-2 py-1.5 text-sm text-darktext sm:flex-none"
           >
             {NETWORK_LAYERS.map((n) => (
               <option key={n} value={n}>
@@ -106,7 +106,7 @@ export default function FilterBar() {
           </select>
         </label>
 
-        <div className="ml-auto flex items-center gap-1 rounded border border-borderb p-1">
+        <div className="flex w-full items-center justify-center gap-1 rounded border border-borderb p-1 sm:ml-auto sm:w-auto">
           {["All", "TS", "TR"].map((t) => (
             <button
               key={t}
@@ -129,7 +129,7 @@ export default function FilterBar() {
             onClick={() => onGenerationChange(g)}
             className={`rounded-full px-3 py-1 text-sm font-medium transition ${
               currentGeneration === g
-                ? "bg-accent text-darktext"
+                ? "bg-accent text-black"
                 : "border border-borderb text-secondary hover:border-primary"
             }`}
           >

@@ -9,7 +9,7 @@ function statusFromVersion(version: string | null): string {
 export default function SpecTable({ versions }: { versions: Spec[] }) {
   if (!versions.length) return null;
   return (
-    <div className="overflow-x-auto rounded-lg border border-bordera bg-white">
+    <div className="overflow-x-auto rounded-lg border border-bordera bg-surface">
       <table className="w-full min-w-[500px] text-left text-sm">
         <thead>
           <tr className="border-b border-bordera bg-offwhite text-xs uppercase tracking-wide text-muted">

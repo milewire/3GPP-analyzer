@@ -48,7 +48,7 @@ export function Table({
         </thead>
         <tbody>
           {rows.map((row, i) => (
-            <tr key={i} className="border-b border-bordera last:border-0 odd:bg-white even:bg-offwhite/40">
+            <tr key={i} className="border-b border-bordera last:border-0 odd:bg-surface even:bg-offwhite/40">
               {row.map((cell, j) => (
                 <td key={j} className="px-4 py-2.5 align-top text-secondary">
                   {cell}

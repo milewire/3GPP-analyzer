@@ -1,4 +1,4 @@
--- RAN Reference D1 schema
+-- 3GPP Sniffer D1 schema
 
 DROP TABLE IF EXISTS specs;
 DROP TABLE IF EXISTS releases;

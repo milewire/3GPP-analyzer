@@ -1,7 +1,10 @@
 {
-  "name": "ran-reference",
+  "name": "3gpp-sniffer",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=18.18.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,11 +12,11 @@
     "lint": "next lint",
     "worker:dev": "wrangler dev",
     "worker:deploy": "wrangler deploy",
-    "db:create": "wrangler d1 create ran-reference-db",
-    "db:schema": "wrangler d1 execute ran-reference-db --local --file=./schema.sql",
-    "db:seed": "wrangler d1 execute ran-reference-db --local --file=./scripts/seed.sql",
-    "db:schema:remote": "wrangler d1 execute ran-reference-db --remote --file=./schema.sql",
-    "db:seed:remote": "wrangler d1 execute ran-reference-db --remote --file=./scripts/seed.sql",
+    "db:create": "wrangler d1 create 3gpp-sniffer-db",
+    "db:schema": "wrangler d1 execute 3gpp-sniffer-db --local --file=./schema.sql",
+    "db:seed": "wrangler d1 execute 3gpp-sniffer-db --local --file=./scripts/seed.sql",
+    "db:schema:remote": "wrangler d1 execute 3gpp-sniffer-db --remote --file=./schema.sql",
+    "db:seed:remote": "wrangler d1 execute 3gpp-sniffer-db --remote --file=./scripts/seed.sql",
     "ingest": "node scripts/ingest.js"
   },
   "dependencies": {

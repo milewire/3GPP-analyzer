@@ -2,24 +2,57 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-primary: #003399;
+  --color-accent: #ffcc00;
+  --color-on-accent: #0a0a0a;
+  --color-offwhite: #f5f7fa;
+  --color-surface: #ffffff;
+  --color-darktext: #0a0a0a;
+  --color-secondary: #4a5568;
+  --color-muted: #718096;
+  --color-bordera: #e2e8f0;
+  --color-borderb: #cbd5e0;
+  --color-link: #003399;
+}
+
+.dark {
+  --color-primary: #6b9aff;
+  --color-accent: #ffcc00;
+  --color-on-accent: #0a0a0a;
+  --color-offwhite: #0b1220;
+  --color-surface: #151d2e;
+  --color-darktext: #f1f5f9;
+  --color-secondary: #94a3b8;
+  --color-muted: #7b8aa3;
+  --color-bordera: #243044;
+  --color-borderb: #334155;
+  --color-link: #8bb0ff;
+}
+
 html {
   scroll-behavior: smooth;
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
 }
 
 body {
-  background-color: #f5f7fa;
-  color: #0a0a0a;
+  background-color: var(--color-offwhite);
+  color: var(--color-darktext);
 }
 
 a {
-  color: #003399;
+  color: var(--color-link);
 }
 
 .spec-chip {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  color: #003399;
-  background: #ffffff;
-  border: 1px solid #003399;
+  color: var(--color-primary);
+  background: var(--color-surface);
+  border: 1px solid var(--color-primary);
   border-radius: 4px;
   padding: 0.15rem 0.5rem;
   font-size: 0.85rem;
@@ -30,6 +63,11 @@ a {
 .section-heading {
   font-size: 1.75rem;
   font-weight: 700;
+  color: var(--color-darktext);
+}
+
+/* Yellow accent surfaces always use black ink for contrast */
+.bg-accent {
   color: #0a0a0a;
 }
 

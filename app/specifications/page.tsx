@@ -1,8 +1,16 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import SearchBar from "@/components/SearchBar";
 import FilterBar from "@/components/FilterBar";
 import SpecCard from "@/components/SpecCard";
 import { getSpecs } from "@/lib/api";
+
+export const metadata: Metadata = {
+  title: "Specifications",
+  description:
+    "Browse and filter the 3GPP specification catalog by release, series, technology, type, and keywords.",
+  alternates: { canonical: "/specifications/" },
+};
 
 export const revalidate = 60;
 
@@ -87,7 +95,7 @@ export default async function SpecificationsPage({
           <SpecCard key={`${spec.spec_id}-${spec.release}`} spec={spec} />
         ))}
         {specs.length === 0 && (
-          <div className="rounded-lg border border-bordera bg-white p-10 text-center text-secondary">
+          <div className="rounded-lg border border-bordera bg-surface p-10 text-center text-secondary">
             No specifications match your filters.
           </div>
         )}

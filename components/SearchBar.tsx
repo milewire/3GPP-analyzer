@@ -24,7 +24,7 @@ export default function SearchBar({
 
   return (
     <form onSubmit={onSubmit} className="mx-auto w-full max-w-3xl">
-      <div className="flex items-center gap-2 rounded-lg border border-borderb bg-white shadow-sm">
+      <div className="flex items-center gap-2 rounded-lg border border-borderb bg-surface shadow-sm">
         <input
           type="text"
           value={value}
@@ -36,7 +36,7 @@ export default function SearchBar({
         />
         <button
           type="submit"
-          className="m-1 rounded-md bg-primary px-5 py-2.5 font-semibold text-white transition hover:bg-accent hover:text-darktext"
+          className="m-1 rounded-md bg-primary px-5 py-2.5 font-semibold text-white transition hover:bg-accent hover:text-black"
         >
           Search
         </button>

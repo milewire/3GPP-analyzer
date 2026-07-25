@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import BrandLogo from "./BrandLogo";
+import ThemeToggle from "./ThemeToggle";
 
 const NAV_LINKS = [
   { label: "Technologies", href: "/technologies/" },
@@ -15,10 +17,10 @@ export default function NavHeader() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-bordera bg-white">
-      <div className="container-page flex h-16 items-center justify-between">
-        <Link href="/" className="text-xl font-bold text-primary">
-          RAN Reference
+    <header className="sticky top-0 z-40 border-b border-bordera bg-surface">
+      <div className="container-page flex h-20 items-center justify-between sm:h-24">
+        <Link href="/" className="flex shrink-0 items-center" aria-label="3GPP Sniffer home">
+          <BrandLogo width={480} height={120} className="h-12 w-auto sm:h-16" priority />
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
@@ -31,19 +33,23 @@ export default function NavHeader() {
               {link.label}
             </Link>
           ))}
+          <ThemeToggle />
         </nav>
 
-        <button
-          aria-label="Toggle menu"
-          className="flex h-9 w-9 items-center justify-center rounded border border-bordera text-primary md:hidden"
-          onClick={() => setOpen((o) => !o)}
-        >
-          <span className="text-lg">{open ? "✕" : "☰"}</span>
-        </button>
+        <div className="flex items-center gap-2 md:hidden">
+          <ThemeToggle />
+          <button
+            aria-label="Toggle menu"
+            className="flex h-9 w-9 items-center justify-center rounded border border-bordera text-primary"
+            onClick={() => setOpen((o) => !o)}
+          >
+            <span className="text-lg">{open ? "✕" : "☰"}</span>
+          </button>
+        </div>
       </div>
 
       {open && (
-        <nav className="border-t border-bordera bg-white md:hidden">
+        <nav className="border-t border-bordera bg-surface md:hidden">
           <div className="container-page flex flex-col py-2">
             {NAV_LINKS.map((link) => (
               <Link

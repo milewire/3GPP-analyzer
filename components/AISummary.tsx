@@ -42,7 +42,7 @@ export default function AISummary({
   }
 
   return (
-    <div className="rounded-lg border border-bordera bg-white p-5">
+    <div className="rounded-lg border border-bordera bg-surface p-5">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="flex items-center gap-2 text-lg font-semibold text-darktext">
           <span aria-hidden>✨</span> AI Summary
@@ -74,7 +74,7 @@ export default function AISummary({
           <button
             onClick={generate}
             disabled={loading}
-            className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-darktext transition hover:brightness-95 disabled:opacity-60"
+            className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-black transition hover:brightness-95 disabled:opacity-60"
           >
             {loading ? "Generating…" : "Generate AI Summary"}
           </button>

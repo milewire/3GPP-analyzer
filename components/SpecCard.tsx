@@ -12,7 +12,7 @@ export default function SpecCard({ spec }: { spec: Spec }) {
   return (
     <Link
       href={href}
-      className="flex flex-col gap-3 rounded-lg border border-bordera bg-white p-4 transition hover:border-primary sm:flex-row sm:items-center sm:gap-6"
+      className="flex flex-col gap-3 rounded-lg border border-bordera bg-surface p-4 transition hover:border-primary sm:flex-row sm:items-center sm:gap-6"
     >
       <div className="shrink-0">
         <span className="spec-chip">{spec.spec_number}</span>

@@ -72,7 +72,7 @@ function extractLinks(html) {
 }
 
 async function fetchDirectory(url) {
-  const res = await fetch(url, { headers: { "User-Agent": "ran-reference-ingest/1.0" } });
+  const res = await fetch(url, { headers: { "User-Agent": "3gpp-sniffer-ingest/1.0" } });
   if (!res.ok) {
     throw new Error(`Failed to fetch ${url}: ${res.status} ${res.statusText}`);
   }

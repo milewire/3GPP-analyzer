@@ -1,7 +1,16 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import SearchBar from "@/components/SearchBar";
 import SpecCard from "@/components/SpecCard";
+import BrandLogo from "@/components/BrandLogo";
 import { getTechnologies, getSpecs, getStats } from "@/lib/api";
+import { buildPageTitle, siteConfig } from "@/lib/seo";
+
+export const metadata: Metadata = {
+  title: { absolute: buildPageTitle() },
+  description: siteConfig.description,
+  alternates: { canonical: "/" },
+};
 
 const HOMEPAGE_TECH_SLUGS = ["lte", "lte-advanced", "lte-advanced-pro", "5g", "5g-advanced", "ims", "epc", "security"];
 
@@ -19,11 +28,16 @@ export default async function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="border-b border-bordera bg-white py-16">
+      <section className="border-b border-bordera bg-surface py-12 sm:py-20">
         <div className="container-page text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight text-darktext sm:text-5xl">
-            RAN Reference
-          </h1>
+          <div className="flex justify-center">
+            <BrandLogo
+              width={960}
+              height={240}
+              className="h-24 w-auto max-w-full sm:h-36 md:h-44"
+              priority
+            />
+          </div>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-secondary">
             Growing collection of 3GPP technical specifications with AI-powered search, version
             tracking, and intelligent categorization.
@@ -36,7 +50,7 @@ export default async function HomePage() {
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/specifications/"
-              className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white transition hover:bg-accent hover:text-darktext"
+              className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white transition hover:bg-accent hover:text-black"
             >
               All Specifications
             </Link>
@@ -68,7 +82,7 @@ export default async function HomePage() {
             <Link
               key={tech.slug}
               href={`/technology/${tech.slug}/`}
-              className="rounded-lg border border-bordera bg-white p-5 transition hover:border-primary hover:shadow-sm"
+              className="rounded-lg border border-bordera bg-surface p-5 transition hover:border-primary hover:shadow-sm"
             >
               <div className="mb-2 text-3xl">{tech.icon}</div>
               <h3 className="text-base font-semibold text-darktext">{tech.name}</h3>
@@ -86,7 +100,7 @@ export default async function HomePage() {
       </section>
 
       {/* Recent Specifications */}
-      <section className="border-t border-bordera bg-white py-14">
+      <section className="border-t border-bordera bg-surface py-14">
         <div className="container-page">
           <div className="mb-8 flex items-end justify-between">
             <div>
@@ -110,19 +124,19 @@ export default async function HomePage() {
       <section className="bg-primary py-12 text-white">
         <div className="container-page grid grid-cols-2 gap-6 text-center sm:grid-cols-4">
           <div>
-            <div className="text-3xl font-extrabold">{stats.specifications.toLocaleString()}+</div>
+            <div className="text-2xl font-extrabold sm:text-3xl">{stats.specifications.toLocaleString()}+</div>
             <div className="mt-1 text-sm text-white/80">Specifications</div>
           </div>
           <div>
-            <div className="text-3xl font-extrabold">Version</div>
+            <div className="text-2xl font-extrabold sm:text-3xl">Version</div>
             <div className="mt-1 text-sm text-white/80">Tracking</div>
           </div>
           <div>
-            <div className="text-3xl font-extrabold">AI</div>
+            <div className="text-2xl font-extrabold sm:text-3xl">AI</div>
             <div className="mt-1 text-sm text-white/80">Analysis</div>
           </div>
           <div>
-            <div className="text-3xl font-extrabold">Technology</div>
+            <div className="text-2xl font-extrabold sm:text-3xl">Technology</div>
             <div className="mt-1 text-sm text-white/80">Browse</div>
           </div>
         </div>

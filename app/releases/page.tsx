@@ -1,5 +1,13 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { getReleases } from "@/lib/api";
+
+export const metadata: Metadata = {
+  title: "3GPP Releases",
+  description:
+    "Browse 3GPP releases from R99 through Rel-20, including freeze dates, key features, and linked specifications.",
+  alternates: { canonical: "/releases/" },
+};
 
 export const revalidate = 3600;
 
@@ -20,7 +28,7 @@ export default async function ReleasesPage() {
           <Link
             key={release.name}
             href={`/releases/${encodeURIComponent(release.name)}/`}
-            className="flex flex-col gap-2 rounded-lg border border-bordera bg-white p-5 transition hover:border-primary sm:flex-row sm:items-center sm:justify-between"
+            className="flex flex-col gap-2 rounded-lg border border-bordera bg-surface p-5 transition hover:border-primary sm:flex-row sm:items-center sm:justify-between"
           >
             <div>
               <div className="flex items-center gap-3">

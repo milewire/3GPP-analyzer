@@ -1,4 +1,4 @@
--- RAN Reference seed data
+-- 3GPP Sniffer seed data
 -- Pre-populates releases, technologies, glossary terms, and specs (50 key specs + a
 -- broader sample set) so the site is functional without running the full FTP ingest.
 

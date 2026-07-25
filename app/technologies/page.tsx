@@ -1,6 +1,14 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import Breadcrumb from "@/components/Breadcrumb";
 import { getTechnologies } from "@/lib/api";
+
+export const metadata: Metadata = {
+  title: "Technologies",
+  description:
+    "Explore 3GPP technology areas including LTE, LTE-Advanced, 5G NR, 5GC, IMS, security, and more.",
+  alternates: { canonical: "/technologies/" },
+};
 
 export const revalidate = 3600;
 
@@ -24,7 +32,7 @@ export default async function TechnologiesPage() {
           <Link
             key={tech.slug}
             href={`/technology/${tech.slug}/`}
-            className="rounded-lg border border-bordera bg-white p-5 transition hover:border-primary hover:shadow-sm"
+            className="rounded-lg border border-bordera bg-surface p-5 transition hover:border-primary hover:shadow-sm"
           >
             <div className="mb-2 flex items-center justify-between">
               <span className="text-3xl">{tech.icon}</span>

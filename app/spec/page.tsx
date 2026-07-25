@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import Breadcrumb from "@/components/Breadcrumb";
 import ReleaseBadge from "@/components/ReleaseBadge";
 import TypeBadge from "@/components/TypeBadge";
@@ -9,6 +10,38 @@ import SpecCard from "@/components/SpecCard";
 import { getSpec } from "@/lib/api";
 
 export const revalidate = 60;
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: { specNumber?: string; release?: string };
+}): Promise<Metadata> {
+  const { specNumber, release } = searchParams;
+  if (!specNumber) {
+    return { title: "Specification", robots: { index: false, follow: true } };
+  }
+
+  try {
+    const { spec } = await getSpec(specNumber, release);
+    const title = `${spec.spec_number} — ${spec.title}`;
+    const description =
+      spec.ai_summary?.slice(0, 155) ||
+      `${spec.spec_number}: ${spec.title}. 3GPP ${spec.type} for ${spec.release}${
+        spec.technology ? ` (${spec.technology})` : ""
+      }.`;
+    const canonical = `/spec/?specNumber=${encodeURIComponent(specNumber)}${
+      release ? `&release=${encodeURIComponent(release)}` : ""
+    }`;
+    return {
+      title,
+      description,
+      alternates: { canonical },
+      openGraph: { title, description },
+    };
+  } catch {
+    return { title: `Specification ${specNumber}` };
+  }
+}
 
 function statusFromVersion(version: string | null): "Draft" | "Approved" {
   if (!version) return "Draft";
@@ -53,7 +86,7 @@ export default async function SpecDetailPage({
           <TechBadge technology={spec.technology} />
           <span
             className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-semibold ${
-              status === "Approved" ? "bg-primary text-white" : "border border-accent text-darktext"
+              status === "Approved" ? "bg-primary text-white" : "border border-accent text-black"
             }`}
           >
             {status}
@@ -89,7 +122,7 @@ export default async function SpecDetailPage({
         </div>
 
         <aside className="flex flex-col gap-6">
-          <div className="rounded-lg border border-bordera bg-white p-5">
+          <div className="rounded-lg border border-bordera bg-surface p-5">
             <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">Metadata</h2>
             <dl className="space-y-3 text-sm">
               <div className="flex justify-between gap-4">
@@ -135,7 +168,7 @@ export default async function SpecDetailPage({
               href={spec.ftp_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg border border-primary bg-white px-4 py-3 text-center text-sm font-semibold text-primary transition hover:bg-primary hover:text-white"
+              className="rounded-lg border border-primary bg-surface px-4 py-3 text-center text-sm font-semibold text-primary transition hover:bg-primary hover:text-white"
             >
               View on 3GPP.org ↗
             </a>

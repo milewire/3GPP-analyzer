@@ -1,8 +1,16 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import Breadcrumb from "@/components/Breadcrumb";
 import TypeBadge from "@/components/TypeBadge";
 import TechBadge from "@/components/TechBadge";
 import { getKeySpecs } from "@/lib/api";
+
+export const metadata: Metadata = {
+  title: "Key Specs",
+  description:
+    "The most-cited 3GPP specifications for RAN engineers, grouped by series with evolution highlights.",
+  alternates: { canonical: "/key-specs/" },
+};
 
 export const revalidate = 300;
 
@@ -38,7 +46,7 @@ export default async function KeySpecsPage({ searchParams }: { searchParams: { s
         </p>
       </div>
 
-      <div className="mb-8 rounded-lg border border-bordera bg-white p-4 text-sm text-secondary">
+      <div className="mb-8 rounded-lg border border-bordera bg-surface p-4 text-sm text-secondary">
         <p>
           <span className="font-semibold text-darktext">Methodology: </span>
           Ranking is derived from citation analysis — how often each specification is referenced by other
@@ -56,7 +64,7 @@ export default async function KeySpecsPage({ searchParams }: { searchParams: { s
             href={s === "All" ? "/key-specs/" : `/key-specs/?series=${s}`}
             className={`rounded-full px-3 py-1 text-sm font-medium transition ${
               (searchParams.series || "All") === s
-                ? "bg-accent text-darktext"
+                ? "bg-accent text-black"
                 : "border border-borderb text-secondary hover:border-primary"
             }`}
           >
@@ -74,7 +82,7 @@ export default async function KeySpecsPage({ searchParams }: { searchParams: { s
             <Link
               key={`${spec.spec_id}-${spec.release}`}
               href={`/spec/?specNumber=${encodeURIComponent(spec.spec_number.replace(/^(TS|TR)\s*/i, ""))}&release=${encodeURIComponent(spec.release)}`}
-              className="flex flex-col gap-2 rounded-lg border border-bordera bg-white p-4 transition hover:border-primary sm:flex-row sm:items-center sm:gap-4"
+              className="flex flex-col gap-2 rounded-lg border border-bordera bg-surface p-4 transition hover:border-primary sm:flex-row sm:items-center sm:gap-4"
             >
               <span className="w-8 shrink-0 text-sm font-bold text-muted">#{i + 1}</span>
               <span className="spec-chip shrink-0">{spec.spec_number}</span>
@@ -86,7 +94,7 @@ export default async function KeySpecsPage({ searchParams }: { searchParams: { s
                   {spec.citation_count} citations
                 </span>
                 {hasEvolution && (
-                  <span className="rounded bg-accent px-2 py-0.5 text-xs font-semibold text-darktext">
+                  <span className="rounded bg-accent px-2 py-0.5 text-xs font-semibold text-black">
                     Evolution
                   </span>
                 )}
@@ -95,13 +103,13 @@ export default async function KeySpecsPage({ searchParams }: { searchParams: { s
           );
         })}
         {specs.length === 0 && (
-          <div className="rounded-lg border border-bordera bg-white p-10 text-center text-secondary">
+          <div className="rounded-lg border border-bordera bg-surface p-10 text-center text-secondary">
             Loading specification details…
           </div>
         )}
       </div>
 
-      <div className="mt-10 grid grid-cols-2 gap-4 rounded-lg border border-bordera bg-white p-6 text-center sm:grid-cols-4">
+      <div className="mt-10 grid grid-cols-2 gap-4 rounded-lg border border-bordera bg-surface p-6 text-center sm:grid-cols-4">
         <div>
           <div className="text-2xl font-extrabold text-primary">{specs.length}</div>
           <div className="mt-1 text-xs text-muted">Key Specifications</div>

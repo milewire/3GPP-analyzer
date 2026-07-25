@@ -1,11 +1,34 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import Breadcrumb from "@/components/Breadcrumb";
 import SpecCard from "@/components/SpecCard";
 import { getTechnology, getTechnologies } from "@/lib/api";
 import { getTechContent, RELEASE_YEARS, TECH_RELEASE_TAGS } from "@/content";
 
 export const revalidate = 300;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
+  try {
+    const { technology } = await getTechnology(params.slug);
+    const title = technology.name;
+    const description =
+      technology.description ||
+      `${technology.full_name || technology.name} — 3GPP technology overview, key specs, and related documents.`;
+    return {
+      title,
+      description,
+      alternates: { canonical: `/technology/${technology.slug}/` },
+      openGraph: { title, description },
+    };
+  } catch {
+    return { title: "Technology" };
+  }
+}
 
 export default async function TechnologyDetailPage({ params }: { params: { slug: string } }) {
   let data;
@@ -40,12 +63,12 @@ export default async function TechnologyDetailPage({ params }: { params: { slug:
             </span>
           )}
         </div>
-        <h1 className="mt-3 text-4xl font-extrabold text-darktext">{technology.name}</h1>
+        <h1 className="mt-3 text-3xl font-extrabold text-darktext sm:text-4xl">{technology.name}</h1>
         {technology.full_name && <p className="mt-1 text-lg text-secondary">{technology.full_name}</p>}
         {releaseTags.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-2">
             {releaseTags.map((r) => (
-              <span key={r} className="rounded-full border border-borderb bg-white px-3 py-1 text-xs font-semibold text-secondary">
+              <span key={r} className="rounded-full border border-borderb bg-surface px-3 py-1 text-xs font-semibold text-secondary">
                 {r} {RELEASE_YEARS[r] ? `(${RELEASE_YEARS[r]})` : ""}
               </span>
             ))}
@@ -94,7 +117,7 @@ export default async function TechnologyDetailPage({ params }: { params: { slug:
         <aside className="hidden lg:block">
           <div className="sticky top-24 space-y-6">
             {sections && (
-              <div className="rounded-lg border border-bordera bg-white p-4">
+              <div className="rounded-lg border border-bordera bg-surface p-4">
                 <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted">On this page</h3>
                 <nav className="flex flex-col gap-1.5 text-sm">
                   {sections.map((s) => (
@@ -106,7 +129,7 @@ export default async function TechnologyDetailPage({ params }: { params: { slug:
               </div>
             )}
 
-            <div className="rounded-lg border border-bordera bg-white p-4">
+            <div className="rounded-lg border border-bordera bg-surface p-4">
               <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted">Other Generations</h3>
               <nav className="flex flex-col gap-1.5 text-sm">
                 {otherGenerations.map((t) => (
@@ -117,7 +140,7 @@ export default async function TechnologyDetailPage({ params }: { params: { slug:
               </nav>
             </div>
 
-            <div className="rounded-lg border border-bordera bg-white p-4 text-sm">
+            <div className="rounded-lg border border-bordera bg-surface p-4 text-sm">
               <Link href="/glossary/" className="font-semibold text-primary hover:text-accent hover:underline">
                 Need definitions? Browse the glossary →
               </Link>

@@ -1,10 +1,36 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import Breadcrumb from "@/components/Breadcrumb";
 import SpecCard from "@/components/SpecCard";
 import { getRelease } from "@/lib/api";
 
 export const revalidate = 300;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { release: string };
+}): Promise<Metadata> {
+  const releaseName = decodeURIComponent(params.release);
+  try {
+    const { release } = await getRelease(releaseName, { limit: "1" });
+    const title = `${release.name} Release`;
+    const description =
+      release.description ||
+      `${release.name} (${release.short_name || release.name}) — ${
+        release.key_features || "3GPP release overview and specifications"
+      }.`;
+    return {
+      title,
+      description: description.slice(0, 160),
+      alternates: { canonical: `/releases/${encodeURIComponent(release.name)}/` },
+      openGraph: { title, description: description.slice(0, 160) },
+    };
+  } catch {
+    return { title: releaseName };
+  }
+}
 
 export default async function ReleaseDetailPage({
   params,
@@ -40,7 +66,7 @@ export default async function ReleaseDetailPage({
       <header className="mb-8">
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-3xl font-extrabold text-darktext">Release {release.name}</h1>
-          <span className="rounded-full border border-borderb bg-white px-3 py-1 text-sm font-semibold text-secondary">
+          <span className="rounded-full border border-borderb bg-surface px-3 py-1 text-sm font-semibold text-secondary">
             {release.generation}
           </span>
         </div>
@@ -61,7 +87,7 @@ export default async function ReleaseDetailPage({
         <Link
           href={buildHref({ series: undefined, page: undefined })}
           className={`rounded-full px-3 py-1 text-sm font-medium transition ${
-            !searchParams.series ? "bg-accent text-darktext" : "border border-borderb text-secondary hover:border-primary"
+            !searchParams.series ? "bg-accent text-black" : "border border-borderb text-secondary hover:border-primary"
           }`}
         >
           All Series
@@ -71,7 +97,7 @@ export default async function ReleaseDetailPage({
             key={s}
             href={buildHref({ series: s, page: undefined })}
             className={`rounded-full px-3 py-1 text-sm font-medium transition ${
-              searchParams.series === s ? "bg-accent text-darktext" : "border border-borderb text-secondary hover:border-primary"
+              searchParams.series === s ? "bg-accent text-black" : "border border-borderb text-secondary hover:border-primary"
             }`}
           >
             Series {s}
@@ -84,7 +110,7 @@ export default async function ReleaseDetailPage({
           <SpecCard key={`${spec.spec_id}-${spec.release}`} spec={spec} />
         ))}
         {specs.length === 0 && (
-          <div className="rounded-lg border border-bordera bg-white p-10 text-center text-secondary">
+          <div className="rounded-lg border border-bordera bg-surface p-10 text-center text-secondary">
             No specifications seeded for this release/series yet.
           </div>
         )}
