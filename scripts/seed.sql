@@ -11,20 +11,7 @@ INSERT INTO releases (name, short_name, generation, freeze_date, key_features, d
 ('Rel-18', 'R18', '5G-Advanced', '2024-03-22', 'RedCap enhancements, NR-NTN, XR enhancements, AI/ML for NG-RAN', 'First 5G-Advanced release, extending 5G NR with AI/ML, non-terrestrial networks, and reduced-capability devices.', 1827),
 ('Rel-17', 'R17', '5G NR', '2022-03-23', 'RedCap (NR-Light), NR-NTN, multicast/broadcast, XR support', 'Extends 5G NR to new device classes and satellite access.', 1703),
 ('Rel-16', 'R16', '5G NR', '2020-07-03', 'NR-U unlicensed, V2X, industrial IoT, integrated access backhaul', 'Enhances 5G NR with unlicensed spectrum, vehicle-to-everything, and private network support.', 1604),
-('Rel-15', 'R15', '5G NR', '2018-06-14', 'First 5G NR specifications, NSA and SA architectures', 'The foundational 5G New Radio release, defining the NR air interface and 5G core.', 1490),
-('Rel-14', 'R14', '4G LTE', '2017-06-09', 'LTE-Advanced Pro, V2X, NB-IoT enhancements', 'Final major LTE release before 5G NR, introducing LTE-Advanced Pro.', 1316),
-('Rel-13', 'R13', '4G LTE', '2016-03-11', 'LTE-Advanced Pro baseline, NB-IoT, LAA, Massive MIMO', 'Introduces LTE-Advanced Pro and Narrowband IoT.', 1276),
-('Rel-12', 'R12', '4G LTE', '2015-03-13', 'Small cell dual connectivity, D2D/ProSe, eMBMS enhancements', 'Adds dual connectivity and device-to-device communication.', 1227),
-('Rel-11', 'R11', '4G LTE', '2012-12-14', 'CoMP, eICIC enhancements, EPDCCH', 'Adds coordinated multi-point transmission and enhanced control channels.', 1175),
-('Rel-10', 'R10', '4G LTE', '2011-06-08', 'Carrier aggregation (true LTE-Advanced baseline), relay nodes', 'The first LTE-Advanced release meeting IMT-Advanced requirements.', 1060),
-('Rel-9', 'R9', '4G LTE', '2009-12-18', 'SON enhancements, eMBMS, dual-layer beamforming', 'Refines the initial LTE release with self-organizing network features.', 1103),
-('Rel-8', 'R8', '4G LTE', '2008-12-19', 'First LTE and EPC specifications, OFDMA/SC-FDMA air interface', 'The foundational LTE release, defining E-UTRAN and the Evolved Packet Core.', 1067),
-('Rel-7', 'R7', '3G', '2007-09-07', 'HSPA+, SPID, VoIP over HSPA', 'Enhances UMTS with HSPA+ and IMS refinements.', 564),
-('Rel-6', 'R6', '3G', '2005-03-18', 'HSUPA, WLAN interworking, MBMS', 'Adds High Speed Uplink Packet Access to UMTS.', 454),
-('Rel-5', 'R5', '3G', '2003-03-14', 'HSDPA, IMS introduction, IP transport in UTRAN', 'Introduces High Speed Downlink Packet Access and the IP Multimedia Subsystem.', 440),
-('Rel-4', 'R4', '3G', '2001-03-16', 'Bearer-independent core network, TD-SCDMA', 'Splits the circuit core into call control and bearer transport.', 240),
-('Rel-2', 'R2', '3G', '2000-06-01', 'Early UMTS enhancements', 'Transitional release consolidating early UMTS corrections.', 81),
-('R99', 'R99', '3G', '2000-03-31', 'First UMTS/WCDMA release', 'The original UMTS release, introducing WCDMA radio access alongside the GSM/GPRS core.', 116);
+('Rel-15', 'R15', '5G NR', '2018-06-14', 'First 5G NR specifications, NSA and SA architectures', 'The foundational 5G New Radio release, defining the NR air interface and 5G core.', 1490);
 
 -- ============================================================================
 -- TECHNOLOGIES
@@ -41,7 +28,16 @@ INSERT INTO technologies (name, slug, full_name, description, intro_release, gen
 ('UMTS', 'umts', 'Universal Mobile Telecommunications System', 'The original 3G system built on WCDMA radio access and an evolved GSM/GPRS core.', 'R99', '3G', 'TS 25.301,TS 23.060', '📱', 340),
 ('GPRS', 'gprs', 'General Packet Radio Service', 'The packet-switched overlay for GSM, providing the 3GPP packet core lineage that EPC evolved from.', 'R99', '2.5G', 'TS 23.060,TS 43.064', '📟', 130),
 ('5GC', '5gc', '5G Core Network', 'The service-based, cloud-native core network architecture underpinning 5G NR.', 'Rel-15', '5G', 'TS 23.501,TS 23.502,TS 29.244', '🧠', 260),
-('VoLTE', 'volte', 'Voice over LTE', 'IMS-based voice service delivered natively over the LTE packet-switched network.', 'Rel-9', '4G', 'TS 23.228,TS 24.229,TS 26.114', '🎙️', 60);
+('VoLTE', 'volte', 'Voice over LTE', 'IMS-based voice service delivered natively over the LTE packet-switched network.', 'Rel-9', '4G', 'TS 23.228,TS 24.229,TS 26.114', '🎙️', 60),
+('3GPP System', '3gpp-system', '3GPP System and Programme Management', 'Cross-system requirements, specification management, working methods, and programme-level documents.', 'Rel-15', 'All', 'TS 21.101,TR 21.900', NULL, 0),
+('3GPP Services', '3gpp-services', '3GPP Service Requirements', 'Stage 1 service requirements and service-level capabilities spanning radio and core generations.', 'Rel-15', 'All', 'TS 22.101,TS 22.261', NULL, 0),
+('Codecs & Media', 'codecs-media', '3GPP Codecs and Media', 'Speech, audio, video, and multimedia codec specifications and media handling.', 'Rel-15', 'All', 'TS 26.114,TS 26.445', NULL, 0),
+('Data Services', 'data-services', '3GPP Data Services', 'Data applications, terminal data functions, and related service specifications.', 'Rel-15', 'All', NULL, NULL, 0),
+('OAM & Charging', 'oam-charging', 'Operations, Administration, Maintenance and Charging', 'Network management, orchestration, charging, performance, configuration, and resource models.', 'Rel-15', 'All', 'TS 28.541,TS 32.240', NULL, 0),
+('UICC & Smart Cards', 'uicc-smart-cards', 'UICC, USIM and Smart Cards', 'Subscriber identity modules, integrated circuit cards, application toolkits, and associated tests.', 'Rel-15', 'All', 'TS 31.102', NULL, 0),
+('Conformance Testing', 'conformance-testing', 'UE and USIM Conformance Testing', 'Conformance and interoperability test specifications for user equipment and subscriber identity modules.', 'Rel-15', 'All', NULL, NULL, 0),
+('GSM/EDGE', 'gsm-edge', 'GSM and EDGE', 'GSM-only requirements, radio, signalling, core network, and service specifications maintained in later releases.', 'Rel-15', '2G', NULL, NULL, 0),
+('Multi-RAT', 'multi-rat', 'Multiple Radio Access Technologies', 'Specifications spanning multiple radio access technologies and shared-spectrum functions.', 'Rel-15', 'All', 'TS 37.213,TS 37.340', NULL, 0);
 
 -- ============================================================================
 -- GLOSSARY TERMS
@@ -221,3 +217,8 @@ INSERT INTO specs (spec_number, spec_id, type, series, title, technology, catego
 ('TS 23.286', '23.286', 'TS', '23', 'Application Layer Support for V2X Services; Functional Architecture and Information Flows', '5G NR', 'Architecture', 'Core Network', 'Active', 'Rel-17', '17.4.0', '2023-01-11', 'https://www.3gpp.org/ftp/Specs/archive/23_series/23.286/', 14, 0),
 ('TS 28.541', '28.541', 'TS', '28', 'Management and Orchestration; 5G Network Resource Model (NRM)', '5GC', 'Management', 'Core Network', 'Active', 'Rel-17', '17.6.0', '2023-01-11', 'https://www.3gpp.org/ftp/Specs/archive/28_series/28.541/', 10, 0),
 ('TS 28.201', '28.201', 'TS', '28', 'Telecommunication Management; Charging Management; Charging Data Record (CDR) Transfer', 'EPC', 'Management', 'Core Network', 'Active', 'Rel-15', '15.0.0', '2018-06-15', 'https://www.3gpp.org/ftp/Specs/archive/28_series/28.201/', 3, 0);
+
+-- The public catalog intentionally starts at Rel-15. Older releases mentioned in
+-- glossary/technology history remain descriptive metadata, not partial catalog rows.
+DELETE FROM specs
+WHERE release NOT IN ('Rel-15', 'Rel-16', 'Rel-17', 'Rel-18', 'Rel-19', 'Rel-20');

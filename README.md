@@ -38,6 +38,7 @@ npm run db:seed
 # Optional: apply incremental migrations if the DB already exists
 npx wrangler d1 execute 3gpp-sniffer-db --local --file=./migrations/0001_ai_rate_limits.sql --yes
 npx wrangler d1 execute 3gpp-sniffer-db --local --file=./migrations/0002_source_excerpts.sql --yes
+npx wrangler d1 execute 3gpp-sniffer-db --local --file=./migrations/0003_catalog_accuracy.sql --yes
 
 # 2. Start the Worker API (port 8787)
 npm run worker:dev
@@ -82,6 +83,7 @@ npm run db:seed:remote
 # Apply incremental migrations on remote D1
 npx wrangler d1 execute 3gpp-sniffer-db --remote --file=./migrations/0001_ai_rate_limits.sql --yes
 npx wrangler d1 execute 3gpp-sniffer-db --remote --file=./migrations/0002_source_excerpts.sql --yes
+npx wrangler d1 execute 3gpp-sniffer-db --remote --file=./migrations/0003_catalog_accuracy.sql --yes
 
 # Deploy the Worker
 npm run worker:deploy

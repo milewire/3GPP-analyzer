@@ -56,9 +56,9 @@ for (const row of rows) {
   }
 
   const classified = classifySpec(row);
-  const technology = row.technology || classified?.technology || null;
-  const category = row.category || classified?.category || null;
-  const networkLayer = row.network_layer || classified?.network_layer || null;
+  const technology = classified?.technology || row.technology || null;
+  const category = classified?.category || row.category || null;
+  const networkLayer = classified?.network_layer || row.network_layer || null;
 
   const changed =
     title !== row.title ||
@@ -89,9 +89,9 @@ if (sqlOut) {
     const best = bestTitle.get(row.spec_id);
     if (isStub && best && !best.stub && best.title) title = best.title;
     const classified = classifySpec(row);
-    const technology = row.technology || classified?.technology || null;
-    const category = row.category || classified?.category || null;
-    const networkLayer = row.network_layer || classified?.network_layer || null;
+    const technology = classified?.technology || row.technology || null;
+    const category = classified?.category || row.category || null;
+    const networkLayer = classified?.network_layer || row.network_layer || null;
     byKey.push(
       `UPDATE specs SET title = ${esc(title)}, technology = ${esc(technology)}, category = ${esc(category)}, network_layer = ${esc(networkLayer)} WHERE spec_id = ${esc(row.spec_id)} AND release = ${esc(row.release)};`
     );

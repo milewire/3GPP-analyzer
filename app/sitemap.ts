@@ -7,12 +7,6 @@ export const dynamic = "force-dynamic";
 
 type ChangeFrequency = NonNullable<MetadataRoute.Sitemap[number]["changeFrequency"]>;
 
-function parseDate(value?: string | null): Date | undefined {
-  if (!value) return undefined;
-  const parsed = new Date(value);
-  return Number.isNaN(parsed.getTime()) ? undefined : parsed;
-}
-
 function entry(
   path: string,
   opts: { lastModified?: Date; changeFrequency?: ChangeFrequency; priority?: number } = {}
@@ -64,7 +58,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       // Canonical versioned spec pages only — legacy ?specNumber= URLs redirect and stay out of the sitemap.
       ...specs.map((spec) =>
         entry(specPath(spec.spec_id, spec.release), {
-          lastModified: parseDate(spec.last_updated),
           changeFrequency: "monthly",
           priority: 0.65,
         })

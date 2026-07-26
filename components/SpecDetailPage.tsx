@@ -42,7 +42,6 @@ export default async function SpecDetailPage({
       spec.ai_summary?.slice(0, 300) ||
       `${spec.spec_number}: ${spec.title}. 3GPP ${spec.type} for ${spec.release}.`,
     url: canonical,
-    dateModified: spec.last_updated || undefined,
     version: spec.version || undefined,
     about: {
       "@type": "Thing",
