@@ -4,7 +4,7 @@ import { json } from "../util";
 /** Minimal versioned spec index used to generate canonical sitemap entries. */
 export async function listSpecIndex(env: Env): Promise<Response> {
   const { results } = await env.DB.prepare(
-    `SELECT spec_id, release
+    `SELECT spec_id, release, MAX(last_updated) AS last_updated
      FROM specs
      WHERE spec_id IS NOT NULL AND release IS NOT NULL
      GROUP BY spec_id, release

@@ -7,6 +7,12 @@ export const dynamic = "force-dynamic";
 
 type ChangeFrequency = NonNullable<MetadataRoute.Sitemap[number]["changeFrequency"]>;
 
+function parseDate(value?: string | null): Date | undefined {
+  if (!value) return undefined;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed;
+}
+
 function entry(
   path: string,
   opts: { lastModified?: Date; changeFrequency?: ChangeFrequency; priority?: number } = {}
@@ -24,9 +30,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     entry("/", { changeFrequency: "daily", priority: 1 }),
     entry("/specifications/", { changeFrequency: "daily", priority: 0.9 }),
-    entry("/key-specs/", { changeFrequency: "weekly", priority: 0.8 }),
-    entry("/releases/", { changeFrequency: "weekly", priority: 0.8 }),
-    entry("/technologies/", { changeFrequency: "weekly", priority: 0.8 }),
+    entry("/key-specs/", { changeFrequency: "weekly", priority: 0.85 }),
+    entry("/releases/", { changeFrequency: "weekly", priority: 0.85 }),
+    entry("/technologies/", { changeFrequency: "weekly", priority: 0.85 }),
     entry("/glossary/", { changeFrequency: "weekly", priority: 0.8 }),
   ];
 
@@ -55,8 +61,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...terms.map((term) =>
         entry(`/glossary/${term.slug}/`, { changeFrequency: "monthly", priority: 0.6 })
       ),
+      // Canonical versioned spec pages only — legacy ?specNumber= URLs redirect and stay out of the sitemap.
       ...specs.map((spec) =>
         entry(specPath(spec.spec_id, spec.release), {
+          lastModified: parseDate(spec.last_updated),
           changeFrequency: "monthly",
           priority: 0.65,
         })

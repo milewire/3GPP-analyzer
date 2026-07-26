@@ -27,11 +27,13 @@ Thumbs.db
 .vscode/
 *.swp
 
-# Ingest / local state
+# Ingest / local state / generated SQL dumps
 scripts/.ingest-checkpoint.json
-scripts/ingest-out.sql
-scripts/_probe-ftp.js
 scripts/.ingest-*.json
+scripts/ingest-out.sql
+scripts/backfill-out.sql
+scripts/source-excerpts*.sql
+scripts/_probe-ftp.js
 
 # Vercel
 .vercel/
@@ -39,8 +41,3 @@ scripts/.ingest-*.json
 # Misc
 *.pem
 .turbo/
-
-scripts/backfill-out.sql
-scripts/source-excerpts.sql
-scripts/source-excerpts*.sql
-scripts/*.log

@@ -7,6 +7,8 @@ import AISummary from "@/components/AISummary";
 import SpecTable from "@/components/SpecTable";
 import SpecCard from "@/components/SpecCard";
 import { getSpec } from "@/lib/api";
+import { absoluteUrl } from "@/lib/seo";
+import { specPath } from "@/lib/spec-url";
 
 function statusFromVersion(version: string | null): "Draft" | "Approved" {
   if (!version) return "Draft";
@@ -30,9 +32,37 @@ export default async function SpecDetailPage({
 
   const { spec, versions, related } = data!;
   const status = statusFromVersion(spec.version);
+  const canonical = absoluteUrl(specPath(spec.spec_id, spec.release));
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    headline: `${spec.spec_number} — ${spec.title}`,
+    name: spec.spec_number,
+    description:
+      spec.ai_summary?.slice(0, 300) ||
+      `${spec.spec_number}: ${spec.title}. 3GPP ${spec.type} for ${spec.release}.`,
+    url: canonical,
+    dateModified: spec.last_updated || undefined,
+    version: spec.version || undefined,
+    about: {
+      "@type": "Thing",
+      name: spec.title,
+    },
+    isPartOf: {
+      "@type": "CreativeWorkSeries",
+      name: spec.release,
+    },
+    keywords: [spec.spec_number, spec.release, spec.type, spec.technology, "3GPP"]
+      .filter(Boolean)
+      .join(", "),
+  };
 
   return (
     <div className="container-page py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Breadcrumb
         items={[
           { label: "Home", href: "/" },

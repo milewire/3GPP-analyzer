@@ -14,7 +14,7 @@ export const RELEASE_SORT_ASC = `CASE
   ELSE 0
 END ASC`;
 
-/** Releases currently populated by live ingest (selected series). */
+/** Releases currently populated by live ingest. */
 export const CATALOG_RELEASES = [
   "Rel-15",
   "Rel-16",
@@ -24,8 +24,8 @@ export const CATALOG_RELEASES = [
   "Rel-20",
 ] as const;
 
-/** Series currently crawled by the default ingest. */
+/** Series used by the default (non --all-series) ingest command. */
 export const CATALOG_SERIES = ["22", "23", "24", "29", "33", "36", "37", "38"] as const;
 
 export const CATALOG_COVERAGE_LABEL =
-  "Catalog covers selected series for Rel-15–Rel-19 and all currently published series for Rel-20.";
+  "Catalog covers Rel-15–Rel-20 across currently published 3GPP series from the official FTP archive.";

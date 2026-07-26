@@ -25,8 +25,27 @@ export async function generateMetadata({
     return {
       title,
       description,
+      keywords: [
+        spec.spec_number,
+        spec.spec_id,
+        spec.release,
+        spec.type,
+        spec.technology,
+        "3GPP",
+        "specification",
+      ].filter(Boolean) as string[],
       alternates: { canonical: specPath(spec.spec_id, spec.release) },
-      openGraph: { title, description },
+      openGraph: {
+        title,
+        description,
+        url: specPath(spec.spec_id, spec.release),
+        type: "article",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+      },
     };
   } catch {
     return { title: `Specification ${specId}`, robots: { index: false, follow: true } };

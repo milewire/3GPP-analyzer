@@ -91,6 +91,7 @@ export interface Pagination {
 export interface SpecIndexEntry {
   spec_id: string;
   release: string;
+  last_updated?: string | null;
 }
 
 export function getSpecs(params: Record<string, string | undefined>) {
