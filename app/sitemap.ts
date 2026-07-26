@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
-import { getGlossary, getReleases, getTechnologies } from "@/lib/api";
+import { getGlossary, getReleases, getSpecIndex, getTechnologies } from "@/lib/api";
 import { absoluteUrl } from "@/lib/seo";
+import { specPath } from "@/lib/spec-url";
 
 export const dynamic = "force-dynamic";
 
@@ -10,12 +11,13 @@ function entry(
   path: string,
   opts: { lastModified?: Date; changeFrequency?: ChangeFrequency; priority?: number } = {}
 ): MetadataRoute.Sitemap[number] {
-  return {
+  const result: MetadataRoute.Sitemap[number] = {
     url: absoluteUrl(path),
-    lastModified: opts.lastModified ?? new Date(),
     changeFrequency: opts.changeFrequency ?? "weekly",
     priority: opts.priority ?? 0.7,
   };
+  if (opts.lastModified) result.lastModified = opts.lastModified;
+  return result;
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -31,10 +33,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let dynamicRoutes: MetadataRoute.Sitemap = [];
 
   try {
-    const [{ technologies }, { releases }, { terms }] = await Promise.all([
+    const [{ technologies }, { releases }, { terms }, { specs }] = await Promise.all([
       getTechnologies(),
       getReleases(),
       getGlossary(),
+      getSpecIndex(),
     ]);
 
     dynamicRoutes = [
@@ -51,6 +54,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ),
       ...terms.map((term) =>
         entry(`/glossary/${term.slug}/`, { changeFrequency: "monthly", priority: 0.6 })
+      ),
+      ...specs.map((spec) =>
+        entry(specPath(spec.spec_id, spec.release), {
+          changeFrequency: "monthly",
+          priority: 0.65,
+        })
       ),
     ];
   } catch {

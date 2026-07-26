@@ -1,5 +1,5 @@
 import type { Env } from "../types";
-import { json, notFound, normalizeSpecId, RELEASE_SORT_DESC } from "../util";
+import { json, notFound, normalizeSpecId, RELEASE_SORT_DESC, toPublicSpec } from "../util";
 
 const SORT_COLUMNS: Record<string, string> = {
   number: "spec_number",
@@ -78,7 +78,7 @@ export async function listSpecs(url: URL, env: Env): Promise<Response> {
   const { results } = await dataStmt.all();
 
   return json({
-    specs: results,
+    specs: (results as Record<string, unknown>[]).map(toPublicSpec),
     pagination: {
       page,
       limit,
@@ -128,5 +128,9 @@ export async function getSpec(url: URL, env: Env): Promise<Response> {
     .bind(spec.series, spec.spec_id)
     .all();
 
-  return json({ spec, versions: versions.results, related: related.results });
+  return json({
+    spec: toPublicSpec(spec as Record<string, unknown>),
+    versions: versions.results,
+    related: (related.results as Record<string, unknown>[]).map(toPublicSpec),
+  });
 }

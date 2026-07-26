@@ -1,5 +1,5 @@
 import type { Env } from "../types";
-import { json, notFound, RELEASE_SORT_DESC } from "../util";
+import { json, notFound, RELEASE_SORT_DESC, toPublicSpec } from "../util";
 
 export async function listTechnologies(env: Env): Promise<Response> {
   const { results } = await env.DB.prepare(
@@ -34,6 +34,6 @@ export async function getTechnology(slug: string, env: Env): Promise<Response> {
 
   return json({
     technology: { ...tech, spec_count: liveCount?.count ?? 0 },
-    specs,
+    specs: (specs as Record<string, unknown>[]).map(toPublicSpec),
   });
 }

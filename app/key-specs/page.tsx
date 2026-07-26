@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Breadcrumb from "@/components/Breadcrumb";
 import TypeBadge from "@/components/TypeBadge";
 import TechBadge from "@/components/TechBadge";
+import { specPath } from "@/lib/spec-url";
 import { getKeySpecs } from "@/lib/api";
 
 export const metadata: Metadata = {
@@ -81,7 +82,7 @@ export default async function KeySpecsPage({ searchParams }: { searchParams: { s
           return (
             <Link
               key={`${spec.spec_id}-${spec.release}`}
-              href={`/spec/?specNumber=${encodeURIComponent(spec.spec_number.replace(/^(TS|TR)\s*/i, ""))}&release=${encodeURIComponent(spec.release)}`}
+              href={specPath(spec.spec_id, spec.release)}
               className="flex flex-col gap-2 rounded-lg border border-bordera bg-surface p-4 transition hover:border-primary sm:flex-row sm:items-center sm:gap-4"
             >
               <span className="w-8 shrink-0 text-sm font-bold text-muted">#{i + 1}</span>

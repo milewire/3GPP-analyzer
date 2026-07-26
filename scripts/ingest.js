@@ -8,6 +8,7 @@
  *
  * Usage:
  *   node scripts/ingest.js [--releases=Rel-19,Rel-18] [--series=36,38]
+ *                          [--all-series]
  *                          [--limit=100] [--force]
  *                          [--sql-out=scripts/ingest-out.sql]
  */
@@ -35,6 +36,7 @@ function parseArgs() {
     sqlOut: null,
     limit: 0,
     force: false,
+    allSeries: false,
   };
   for (const arg of args) {
     if (arg.startsWith("--releases=")) {
@@ -57,9 +59,22 @@ function parseArgs() {
       opts.limit = parseInt(arg.replace("--limit=", ""), 10) || 0;
     } else if (arg === "--force") {
       opts.force = true;
+    } else if (arg === "--all-series") {
+      opts.allSeries = true;
     }
   }
   return opts;
+}
+
+async function discoverReleaseSeries(release) {
+  const releaseUrl = `${LATEST_URL}${release}/`;
+  const links = extractLinks(await fetchText(releaseUrl));
+  await sleep(RATE_LIMIT_MS);
+  return [...new Set(
+    links
+      .map((href) => /(?:^|\/)(\d{2})_series\/?$/i.exec(href)?.[1])
+      .filter(Boolean)
+  )].sort((a, b) => Number(a) - Number(b));
 }
 
 function sleep(ms) {
@@ -315,14 +330,18 @@ async function main() {
   const checkpoint = opts.force ? { completed: {} } : loadCheckpoint();
 
   console.log(`Releases: ${opts.releases.join(", ")}`);
-  console.log(`Series:   ${opts.series.join(", ")}`);
+  console.log(`Series:   ${opts.allSeries ? "auto-discover all" : opts.series.join(", ")}`);
   if (opts.limit) console.log(`Limit:    ${opts.limit} specs per release/series`);
   if (opts.sqlOut) console.log(`SQL out:  ${opts.sqlOut}`);
 
   let total = 0;
   for (const release of opts.releases) {
     console.log(`\n=== ${release} ===`);
-    for (const series of opts.series) {
+    const releaseSeries = opts.allSeries
+      ? await discoverReleaseSeries(release)
+      : opts.series;
+    console.log(`Series for ${release}: ${releaseSeries.join(", ") || "none found"}`);
+    for (const series of releaseSeries) {
       total += await ingestReleaseSeries(localDb, sqlLines, release, series, checkpoint, opts);
     }
   }

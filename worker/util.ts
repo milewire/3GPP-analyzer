@@ -1,6 +1,6 @@
 export const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
@@ -30,6 +30,16 @@ export function normalizeSpecId(input: string): string {
     return `${stripped.slice(0, 2)}.${stripped.slice(2)}`;
   }
   return stripped;
+}
+
+/** Keep source excerpts server-side while exposing whether grounding is available. */
+export function toPublicSpec(row: Record<string, unknown>): Record<string, unknown> {
+  const {
+    source_excerpt: sourceExcerpt,
+    source_extracted_at: _sourceExtractedAt,
+    ...spec
+  } = row;
+  return { ...spec, source_grounded: Boolean(sourceExcerpt) };
 }
 
 /** Numeric release sort — lexical DESC wrongly ranks Rel-8 above Rel-19. */

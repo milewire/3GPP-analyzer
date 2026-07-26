@@ -3,11 +3,10 @@ import type { Spec } from "@/lib/api";
 import TechBadge from "./TechBadge";
 import ReleaseBadge from "./ReleaseBadge";
 import TypeBadge from "./TypeBadge";
+import { specPath } from "@/lib/spec-url";
 
 export default function SpecCard({ spec }: { spec: Spec }) {
-  const href = `/spec/?specNumber=${encodeURIComponent(spec.spec_number.replace(/^(TS|TR)\s*/i, ""))}&release=${encodeURIComponent(
-    spec.release
-  )}`;
+  const href = specPath(spec.spec_id, spec.release);
 
   return (
     <Link

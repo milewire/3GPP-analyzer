@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS specs;
 DROP TABLE IF EXISTS releases;
 DROP TABLE IF EXISTS technologies;
 DROP TABLE IF EXISTS glossary_terms;
+DROP TABLE IF EXISTS ai_rate_limits;
 
 CREATE TABLE specs (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -23,6 +24,8 @@ CREATE TABLE specs (
   ai_summary TEXT,
   ai_summary_generated_at TEXT,
   ai_relevance_score INTEGER,
+  source_excerpt TEXT,
+  source_extracted_at TEXT,
   key_technologies TEXT,
   citation_count INTEGER DEFAULT 0,
   is_key_spec INTEGER DEFAULT 0,
@@ -64,6 +67,12 @@ CREATE TABLE glossary_terms (
   related_specs TEXT,
   related_terms TEXT,
   evolution TEXT
+);
+
+CREATE TABLE ai_rate_limits (
+  key TEXT PRIMARY KEY,
+  count INTEGER NOT NULL DEFAULT 0,
+  window_start TEXT NOT NULL
 );
 
 CREATE INDEX idx_specs_number ON specs(spec_number);

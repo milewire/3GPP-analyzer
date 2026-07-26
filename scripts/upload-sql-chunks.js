@@ -8,13 +8,45 @@ const os = require("os");
 const file = process.argv[2] || path.join(__dirname, "ingest-out.sql");
 const chunkSize = parseInt(process.argv[3] || "80", 10);
 const raw = fs.readFileSync(file, "utf-8");
-const statements = raw
-  .split(/;\s*\n/)
-  .map((s) => s.trim())
-  .filter(Boolean)
-  .map((s) => (s.endsWith(";") ? s : `${s};`));
+
+function splitSql(input) {
+  const statements = [];
+  let current = "";
+  let inString = false;
+
+  for (let i = 0; i < input.length; i += 1) {
+    const char = input[i];
+    const next = input[i + 1];
+    current += char;
+
+    if (char === "'" && inString && next === "'") {
+      current += next;
+      i += 1;
+      continue;
+    }
+    if (char === "'") {
+      inString = !inString;
+      continue;
+    }
+    if (char === ";" && !inString) {
+      const statement = current.trim();
+      if (statement) statements.push(statement);
+      current = "";
+    }
+  }
+
+  const remainder = current.trim();
+  if (remainder) statements.push(remainder.endsWith(";") ? remainder : `${remainder};`);
+  return statements;
+}
+
+const statements = splitSql(raw);
 
 console.log(`Uploading ${statements.length} statements in chunks of ${chunkSize}`);
+if (process.argv.includes("--dry-run")) {
+  console.log("Dry run: no remote changes made.");
+  process.exit(0);
+}
 
 const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "d1-chunks-"));
 let ok = 0;

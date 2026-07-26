@@ -73,7 +73,7 @@ npm run build
 
 - Root metadata, Open Graph, and Twitter cards in `app/layout.tsx`
 - JSON-LD (`WebSite` + `SoftwareApplication`) on every page
-- `app/sitemap.ts` — static routes plus technologies, releases, and glossary terms
+- `app/sitemap.ts` — static routes plus versioned spec, technology, release, and glossary pages
 - `app/robots.ts` — allows crawl and points to `/sitemap.xml`
 - Per-route `metadata` / `generateMetadata` on major pages
 
@@ -86,10 +86,12 @@ Crawl additional specs from the public 3GPP FTP archive:
 
 ```bash
 node scripts/ingest.js --series=22,23,24,29,33,36,37,38
+npm run ingest:rel20
 ```
 
-Default coverage is **Rel-15–Rel-19** for those series. Progress is checkpointed in
-`scripts/.ingest-checkpoint.json` (gitignored) and requests are rate-limited.
+Use `--all-series` to discover every series currently published for a release. Progress
+is checkpointed in `scripts/.ingest-checkpoint.json` (gitignored) and requests are
+rate-limited.
 
 After a bulk ingest, tag taxonomy and fix stub titles:
 
@@ -97,6 +99,16 @@ After a bulk ingest, tag taxonomy and fix stub titles:
 npm run backfill:metadata
 node scripts/upload-sql-chunks.js scripts/backfill-out.sql 100
 ```
+
+Extract short official Scope excerpts from DOCX archives for source-grounded summaries:
+
+```bash
+npm run extract:sources
+node scripts/upload-sql-chunks.js scripts/source-excerpts.sql 50
+```
+
+The public AI generation endpoint is POST-only, limited to three uncached generations
+per client per hour and 100 globally per day, and cached summaries remain readable by GET.
 
 ## Project Structure
 

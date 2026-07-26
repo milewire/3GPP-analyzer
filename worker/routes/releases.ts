@@ -1,5 +1,5 @@
 import type { Env } from "../types";
-import { json, notFound } from "../util";
+import { json, notFound, toPublicSpec } from "../util";
 
 const RELEASE_ORDER = [
   "Rel-20", "Rel-19", "Rel-18", "Rel-17", "Rel-16", "Rel-15", "Rel-14", "Rel-13",
@@ -72,7 +72,7 @@ export async function getRelease(release: string, url: URL, env: Env): Promise<R
 
   return json({
     release: releaseRow,
-    specs,
+    specs: (specs as Record<string, unknown>[]).map(toPublicSpec),
     seriesList: (seriesList as { series: string }[]).map((r) => r.series),
     pagination: { page, limit, total, totalPages: Math.max(1, Math.ceil(total / limit)) },
   });

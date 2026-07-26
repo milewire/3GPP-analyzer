@@ -10,16 +10,19 @@ export default function AISummary({
   initialSummary,
   initialGeneratedAt,
   initialRelevanceScore,
+  initialGrounded,
 }: {
   specId: string;
   release: string;
   initialSummary: string | null;
   initialGeneratedAt: string | null;
   initialRelevanceScore: number | null;
+  initialGrounded: boolean;
 }) {
   const [summary, setSummary] = useState(initialSummary);
   const [generatedAt, setGeneratedAt] = useState(initialGeneratedAt);
   const [relevanceScore, setRelevanceScore] = useState(initialRelevanceScore);
+  const [grounded, setGrounded] = useState(initialGrounded);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,12 +31,15 @@ export default function AISummary({
     setError(null);
     try {
       const qs = new URLSearchParams({ specId, release });
-      const res = await fetch(`${API_URL}/api/ai-summary?${qs.toString()}`);
+      const res = await fetch(`${API_URL}/api/ai-summary?${qs.toString()}`, {
+        method: "POST",
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to generate summary");
       setSummary(data.summary);
       setGeneratedAt(data.generated_at);
       setRelevanceScore(data.relevance_score);
+      setGrounded(Boolean(data.grounded));
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -59,6 +65,11 @@ export default function AISummary({
 
       {summary ? (
         <div>
+          <p className="mb-3 text-xs font-semibold text-muted">
+            {grounded
+              ? "Grounded in the official 3GPP Scope excerpt"
+              : "Catalog metadata only — Scope excerpt not extracted yet"}
+          </p>
           <p className="whitespace-pre-line text-sm leading-relaxed text-secondary">{summary}</p>
           {generatedAt && (
             <p className="mt-3 text-xs text-muted">

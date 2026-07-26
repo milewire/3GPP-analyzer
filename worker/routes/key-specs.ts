@@ -1,5 +1,5 @@
 import type { Env } from "../types";
-import { json } from "../util";
+import { json, toPublicSpec } from "../util";
 
 export async function listKeySpecs(url: URL, env: Env): Promise<Response> {
   const series = url.searchParams.get("series");
@@ -17,5 +17,5 @@ export async function listKeySpecs(url: URL, env: Env): Promise<Response> {
     .bind(...args)
     .all();
 
-  return json({ specs: results });
+  return json({ specs: (results as Record<string, unknown>[]).map(toPublicSpec) });
 }

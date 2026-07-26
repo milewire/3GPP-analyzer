@@ -27,8 +27,8 @@ if (releaseFilter) {
 }
 for (const s of rows) {
   lines.push(
-    `INSERT INTO specs (spec_number, spec_id, type, series, title, technology, category, network_layer, status, release, version, last_updated, ftp_url, ai_summary, ai_summary_generated_at, ai_relevance_score, citation_count, is_key_spec)
-     VALUES (${esc(s.spec_number)}, ${esc(s.spec_id)}, ${esc(s.type)}, ${esc(s.series)}, ${esc(s.title)}, ${esc(s.technology)}, ${esc(s.category)}, ${esc(s.network_layer)}, ${esc(s.status)}, ${esc(s.release)}, ${esc(s.version)}, ${esc(s.last_updated)}, ${esc(s.ftp_url)}, ${esc(s.ai_summary)}, ${esc(s.ai_summary_generated_at)}, ${s.ai_relevance_score ?? "NULL"}, ${s.citation_count ?? 0}, ${s.is_key_spec ?? 0});`
+    `INSERT INTO specs (spec_number, spec_id, type, series, title, technology, category, network_layer, status, release, version, last_updated, ftp_url, ai_summary, ai_summary_generated_at, ai_relevance_score, source_excerpt, source_extracted_at, citation_count, is_key_spec)
+     VALUES (${esc(s.spec_number)}, ${esc(s.spec_id)}, ${esc(s.type)}, ${esc(s.series)}, ${esc(s.title)}, ${esc(s.technology)}, ${esc(s.category)}, ${esc(s.network_layer)}, ${esc(s.status)}, ${esc(s.release)}, ${esc(s.version)}, ${esc(s.last_updated)}, ${esc(s.ftp_url)}, ${esc(s.ai_summary)}, ${esc(s.ai_summary_generated_at)}, ${s.ai_relevance_score ?? "NULL"}, ${esc(s.source_excerpt)}, ${esc(s.source_extracted_at)}, ${s.citation_count ?? 0}, ${s.is_key_spec ?? 0});`
   );
 }
 lines.push(

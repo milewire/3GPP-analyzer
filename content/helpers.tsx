@@ -3,7 +3,7 @@ import Link from "next/link";
 export function SpecLink({ number, children }: { number: string; children?: React.ReactNode }) {
   const digits = number.replace(/^(TS|TR)\s*/i, "").trim();
   return (
-    <Link href={`/spec/?specNumber=${encodeURIComponent(digits)}`} className="spec-chip">
+    <Link href={`/spec/${encodeURIComponent(digits)}/`} className="spec-chip">
       {children || number}
     </Link>
   );

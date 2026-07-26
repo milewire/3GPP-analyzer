@@ -1,5 +1,5 @@
 import type { Env } from "../types";
-import { json, notFound } from "../util";
+import { json, notFound, toPublicSpec } from "../util";
 
 export async function listGlossary(url: URL, env: Env): Promise<Response> {
   const category = url.searchParams.get("category");
@@ -44,7 +44,7 @@ export async function getGlossaryTerm(slug: string, env: Env): Promise<Response>
     )
       .bind(...relatedSpecNumbers)
       .all();
-    relatedSpecs = results;
+    relatedSpecs = (results as Record<string, unknown>[]).map(toPublicSpec);
   }
 
   return json({ term, relatedSpecs });

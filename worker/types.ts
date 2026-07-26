@@ -23,6 +23,8 @@ export interface SpecRow {
   ai_summary: string | null;
   ai_summary_generated_at: string | null;
   ai_relevance_score: number | null;
+  source_excerpt: string | null;
+  source_extracted_at: string | null;
   key_technologies: string | null;
   citation_count: number;
   is_key_spec: number;

@@ -41,3 +41,6 @@ scripts/.ingest-*.json
 .turbo/
 
 scripts/backfill-out.sql
+scripts/source-excerpts.sql
+scripts/source-excerpts*.sql
+scripts/*.log

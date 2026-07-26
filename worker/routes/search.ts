@@ -1,5 +1,5 @@
 import type { Env } from "../types";
-import { json, RELEASE_SORT_DESC } from "../util";
+import { json, RELEASE_SORT_DESC, toPublicSpec } from "../util";
 
 export async function search(url: URL, env: Env): Promise<Response> {
   const q = url.searchParams.get("q");
@@ -25,5 +25,5 @@ export async function search(url: URL, env: Env): Promise<Response> {
     .bind(like, like, like)
     .all();
 
-  return json({ specs, terms });
+  return json({ specs: (specs as Record<string, unknown>[]).map(toPublicSpec), terms });
 }

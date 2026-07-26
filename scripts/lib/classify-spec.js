@@ -22,8 +22,9 @@ function categoryForSpec(specId, series) {
 
 function layerForSeries(series) {
   if (series === "33") return "Security";
+  if (series === "35") return "Security";
   if (series === "22") return "Service";
-  if (["23", "24", "29"].includes(series)) return "Core Network";
+  if (["23", "24", "26", "28", "29", "32"].includes(series)) return "Core Network";
   return "Radio Access Network";
 }
 
@@ -56,15 +57,15 @@ function classifySpec({ series, release, spec_id }) {
       network_layer,
     };
   }
-  if (s === "33") {
+  if (s === "33" || s === "35") {
     return { technology: "Security", category: "Security", network_layer: "Security" };
   }
-  if (s === "23" || s === "29") {
+  if (["23", "28", "29", "32"].includes(s)) {
     if (rel >= 15) return { technology: "5GC", category, network_layer: "Core Network" };
     if (rel >= 8) return { technology: "EPC", category, network_layer: "Core Network" };
     return { technology: "UMTS", category, network_layer: "Core Network" };
   }
-  if (s === "24") {
+  if (s === "24" || s === "26") {
     return { technology: "IMS", category: "Protocol", network_layer: "Core Network" };
   }
   if (s === "22") {

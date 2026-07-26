@@ -8,6 +8,7 @@ import { listKeySpecs } from "./routes/key-specs";
 import { getStats } from "./routes/stats";
 import { search } from "./routes/search";
 import { getAiSummary } from "./routes/ai-summary";
+import { listSpecIndex } from "./routes/spec-index";
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -20,6 +21,7 @@ export default {
 
     try {
       if (pathname === "/api/specs") return listSpecs(url, env);
+      if (pathname === "/api/spec-index") return listSpecIndex(env);
       if (pathname === "/api/spec") return getSpec(url, env);
       if (pathname === "/api/releases") return listReleases(url, env);
       if (pathname.startsWith("/api/release/")) {
@@ -37,7 +39,7 @@ export default {
         return getGlossaryTerm(slug, env);
       }
       if (pathname === "/api/key-specs") return listKeySpecs(url, env);
-      if (pathname === "/api/ai-summary") return getAiSummary(url, env);
+      if (pathname === "/api/ai-summary") return getAiSummary(request, url, env);
       if (pathname === "/api/stats") return getStats(env);
       if (pathname === "/api/search") return search(url, env);
 

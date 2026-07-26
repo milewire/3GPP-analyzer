@@ -39,6 +39,7 @@ export interface Spec {
   ai_summary: string | null;
   ai_summary_generated_at: string | null;
   ai_relevance_score: number | null;
+  source_grounded: boolean;
   citation_count: number;
   is_key_spec: number;
 }
@@ -87,12 +88,21 @@ export interface Pagination {
   totalPages: number;
 }
 
+export interface SpecIndexEntry {
+  spec_id: string;
+  release: string;
+}
+
 export function getSpecs(params: Record<string, string | undefined>) {
   const qs = new URLSearchParams();
   Object.entries(params).forEach(([k, v]) => {
     if (v) qs.set(k, v);
   });
   return apiFetch<{ specs: Spec[]; pagination: Pagination }>(`/api/specs?${qs.toString()}`, 60);
+}
+
+export function getSpecIndex() {
+  return apiFetch<{ specs: SpecIndexEntry[] }>(`/api/spec-index`, 3600);
 }
 
 export async function getSpec(specNumber: string, release?: string) {
