@@ -5,9 +5,7 @@ specification database for RAN and telecom engineers — browse, search, and und
 LTE and 5G technical specifications with version tracking, release timelines, technology
 guides, glossary terms, and Claude-powered AI summaries grounded in official Scope excerpts.
 
-**Live site:** [https://3gppanalyzer.com](https://3gppanalyzer.com)  
-**API:** [https://3gpp-analyzer-worker.phillip-smith-151.workers.dev](https://3gpp-analyzer-worker.phillip-smith-151.workers.dev)  
-**Repo:** [github.com/milewire/3GPP-analyzer](https://github.com/milewire/3GPP-analyzer)
+**Live site:** [https://3gppanalyzer.com](https://3gppanalyzer.com)
 
 ## Stack
 
@@ -18,8 +16,9 @@ guides, glossary terms, and Claude-powered AI summaries grounded in official Sco
 - **AI summaries:** Anthropic Claude API (`claude-sonnet-4-6`), grounded in official Scope text when available
 
 > **Note:** Product branding is **3GPP Analyzer** / `3gppanalyzer.com`. Cloudflare D1/R2
-> resource names still use the legacy `3gpp-sniffer-db` / `3gpp-sniffer-specs` identifiers
-> so existing production data stays bound without a rename migration.
+> resource *names* still use the legacy `3gpp-sniffer-db` / `3gpp-sniffer-specs` identifiers
+> so existing production data stays bound without a rename migration. Account-specific IDs
+> and Worker URLs live only in gitignored `wrangler.local.toml` / hosting dashboards.
 
 ## Catalog Coverage
 
@@ -38,6 +37,10 @@ as a dev dependency.
 
 ```bash
 npm install
+
+# Local Cloudflare config (gitignored) — copy the template and set your D1 database_id
+cp wrangler.toml wrangler.local.toml
+# Edit wrangler.local.toml: replace <D1_DATABASE_ID> with the id from the Cloudflare dashboard
 
 # 1. Create the local D1 database and load schema + seed data
 npm run db:schema
@@ -82,7 +85,7 @@ wrangler secret put ANTHROPIC_API_KEY
 
 | Name | Value |
 |---|---|
-| `NEXT_PUBLIC_API_URL` | `https://3gpp-analyzer-worker.phillip-smith-151.workers.dev` (or `https://api.3gppanalyzer.com` after Cloudflare custom domain is live) |
+| `NEXT_PUBLIC_API_URL` | Your deployed Worker origin (prefer `https://api.3gppanalyzer.com` once the custom domain is live; otherwise the Worker’s `*.workers.dev` URL from the Cloudflare dashboard) |
 | `NEXT_PUBLIC_SITE_URL` | `https://3gppanalyzer.com` |
 
 Do **not** put `ANTHROPIC_API_KEY` in Vercel — that secret stays on the Cloudflare Worker (`wrangler secret put ANTHROPIC_API_KEY`).
@@ -92,18 +95,19 @@ Do **not** put `ANTHROPIC_API_KEY` in Vercel — that secret stays on the Cloudf
 The Worker is deployed as `3gpp-analyzer-worker`. To serve it on `api.3gppanalyzer.com`:
 
 1. In Cloudflare Dashboard → **Add a site** → enter `3gppanalyzer.com`
-2. At the registrar (**name.com** today), switch nameservers to the Cloudflare NS values shown
+2. At your domain registrar, switch nameservers to the Cloudflare NS values shown
 3. Wait until the zone status is **Active**
 4. In `wrangler.toml`, uncomment the `[[routes]]` block for `api.3gppanalyzer.com`
 5. Run `npm run worker:deploy`
 6. Point Vercel `NEXT_PUBLIC_API_URL` at `https://api.3gppanalyzer.com`
 
-Until the zone is on Cloudflare, keep using the `workers.dev` URL above.
+Until the zone is on Cloudflare, point Vercel at your Worker origin from the Cloudflare dashboard. Do not commit account-specific Worker URLs or resource IDs to this repository.
 
 ## Deployment
 
 ```bash
-# One-time: create the D1 database and update database_id in wrangler.toml
+# One-time: create the D1 database, then set database_id in a local wrangler override
+# (see wrangler.toml comments — do not commit account-specific IDs)
 npm run db:create
 
 # Push schema + seed data to the remote database
@@ -123,7 +127,7 @@ npx wrangler d1 execute 3gpp-sniffer-db --remote --file=./migrations/0007_techno
 npm run worker:deploy
 
 # Build / deploy the Next.js app on Vercel (3gppanalyzer.com)
-# Set NEXT_PUBLIC_API_URL to https://3gpp-analyzer-worker.phillip-smith-151.workers.dev
+# Set NEXT_PUBLIC_API_URL to your Worker origin (api.3gppanalyzer.com or *.workers.dev)
 # Set NEXT_PUBLIC_SITE_URL to https://3gppanalyzer.com
 npm run build
 ```

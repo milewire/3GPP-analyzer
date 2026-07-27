@@ -11,6 +11,7 @@ coverage/
 .wrangler/
 .mf/
 .dev.vars
+wrangler.local.toml
 
 # Env / secrets
 .env

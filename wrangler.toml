@@ -3,11 +3,12 @@ main = "worker/index.ts"
 compatibility_date = "2024-01-01"
 workers_dev = true
 
-# D1/R2 keep existing Cloudflare resource names (data continuity).
+# Public template. Copy to wrangler.local.toml (gitignored) and set your D1 database_id
+# from the Cloudflare dashboard before running Worker / D1 commands.
 [[d1_databases]]
 binding = "DB"
 database_name = "3gpp-sniffer-db"
-database_id = "678d2c8b-2dcf-4bc4-b454-38d2d59bee50"
+database_id = "<D1_DATABASE_ID>"
 
 [[r2_buckets]]
 binding = "SPECS_BUCKET"
@@ -15,7 +16,7 @@ bucket_name = "3gpp-sniffer-specs"
 
 [vars]
 NEXT_PUBLIC_SITE_URL = "https://3gppanalyzer.com"
-NEXT_PUBLIC_API_URL = "https://3gpp-analyzer-worker.phillip-smith-151.workers.dev"
+# API origin is configured on Vercel (NEXT_PUBLIC_API_URL), not committed here.
 
 # Custom domain for the API (requires 3gppanalyzer.com added as a Cloudflare zone).
 # After the zone is active, uncomment and redeploy:

@@ -52,7 +52,7 @@ export const siteConfig = {
     "telecom standards",
   ],
   locale: "en_US",
-  creator: "Milewire",
+  creator: "3GPP Analyzer",
   twitterHandle: "",
 };
 
