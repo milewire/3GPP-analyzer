@@ -1,20 +1,25 @@
 # 3GPP Analyzer
 
-AI-powered 3GPP specification database for RAN and telecom engineers — browse,
-search, and understand LTE and 5G technical specifications with version tracking,
-release timelines, technology guides, glossary terms, and Claude-powered AI summaries
-grounded in official Scope excerpts.
+**3GPP Analyzer** ([3gppanalyzer.com](https://3gppanalyzer.com)) is an AI-powered 3GPP
+specification database for RAN and telecom engineers — browse, search, and understand
+LTE and 5G technical specifications with version tracking, release timelines, technology
+guides, glossary terms, and Claude-powered AI summaries grounded in official Scope excerpts.
 
 **Live site:** [https://3gppanalyzer.com](https://3gppanalyzer.com)  
+**API:** [https://3gpp-analyzer-worker.phillip-smith-151.workers.dev](https://3gpp-analyzer-worker.phillip-smith-151.workers.dev)  
 **Repo:** [github.com/milewire/3GPP-analyzer](https://github.com/milewire/3GPP-analyzer)
 
 ## Stack
 
 - **Frontend:** Next.js 14 (App Router) + Tailwind CSS (light/dark theme), deployed on Vercel
-- **API:** Cloudflare Workers
+- **API:** Cloudflare Worker (`3gpp-analyzer-worker`)
 - **Database:** Cloudflare D1 (SQLite at the edge)
 - **Object storage (optional / planned):** Cloudflare R2
 - **AI summaries:** Anthropic Claude API (`claude-sonnet-4-6`), grounded in official Scope text when available
+
+> **Note:** Product branding is **3GPP Analyzer** / `3gppanalyzer.com`. Cloudflare D1/R2
+> resource names still use the legacy `3gpp-sniffer-db` / `3gpp-sniffer-specs` identifiers
+> so existing production data stays bound without a rename migration.
 
 ## Catalog Coverage
 
@@ -39,6 +44,7 @@ npm run db:schema
 npm run db:seed
 
 # Optional: apply incremental migrations if the DB already exists
+# (DB name `3gpp-sniffer-db` is the legacy Cloudflare resource id — see note above)
 npx wrangler d1 execute 3gpp-sniffer-db --local --file=./migrations/0001_ai_rate_limits.sql --yes
 npx wrangler d1 execute 3gpp-sniffer-db --local --file=./migrations/0002_source_excerpts.sql --yes
 npx wrangler d1 execute 3gpp-sniffer-db --local --file=./migrations/0003_catalog_accuracy.sql --yes
@@ -104,7 +110,7 @@ npm run db:create
 npm run db:schema:remote
 npm run db:seed:remote
 
-# Apply incremental migrations on remote D1
+# Apply incremental migrations on remote D1 (legacy resource name `3gpp-sniffer-db`)
 npx wrangler d1 execute 3gpp-sniffer-db --remote --file=./migrations/0001_ai_rate_limits.sql --yes
 npx wrangler d1 execute 3gpp-sniffer-db --remote --file=./migrations/0002_source_excerpts.sql --yes
 npx wrangler d1 execute 3gpp-sniffer-db --remote --file=./migrations/0003_catalog_accuracy.sql --yes
@@ -113,23 +119,24 @@ npx wrangler d1 execute 3gpp-sniffer-db --remote --file=./migrations/0005_networ
 npx wrangler d1 execute 3gpp-sniffer-db --remote --file=./migrations/0006_purge_2g3g.sql --yes
 npx wrangler d1 execute 3gpp-sniffer-db --remote --file=./migrations/0007_technology_icons.sql --yes
 
-# Deploy the Worker
+# Deploy the Cloudflare Worker (3gpp-analyzer-worker)
 npm run worker:deploy
 
-# Build / deploy the Next.js app on Vercel
-# Set NEXT_PUBLIC_API_URL to the deployed Worker URL
+# Build / deploy the Next.js app on Vercel (3gppanalyzer.com)
+# Set NEXT_PUBLIC_API_URL to https://3gpp-analyzer-worker.phillip-smith-151.workers.dev
 # Set NEXT_PUBLIC_SITE_URL to https://3gppanalyzer.com
 npm run build
 ```
 
 ## SEO
 
+- Canonical host: `https://3gppanalyzer.com`
 - Root metadata, Open Graph, and Twitter cards in `app/layout.tsx`
 - JSON-LD (`WebSite` + `SoftwareApplication`) sitewide; TechArticle on spec pages
 - Canonical URLs via `NEXT_PUBLIC_SITE_URL` (`lib/seo.ts`)
 - Spec pages use clean paths: `/spec/{specId}/{release}/` (legacy `?specNumber=` redirects)
 - `app/sitemap.ts` — home, listings, featured tech pages (NTN, Network Slicing, 5G-Advanced, …), releases, glossary terms, and every versioned spec
-- `app/robots.ts` — allows crawl and points to `/sitemap.xml`
+- `app/robots.ts` — allows crawl and points to `https://3gppanalyzer.com/sitemap.xml`
 - Per-route `metadata` / `generateMetadata` on major pages
 
 ## Data Ingestion
@@ -197,5 +204,5 @@ of 3GPP and remains subject to 3GPP's own terms of use.
 
 ## Disclaimer
 
-Data sourced from the [3GPP FTP server](https://www.3gpp.org/ftp/Specs/archive/).
+**3GPP Analyzer** data is sourced from the [3GPP FTP server](https://www.3gpp.org/ftp/Specs/archive/).
 This is an unofficial community tool, not affiliated with 3GPP or any mobile operator.
