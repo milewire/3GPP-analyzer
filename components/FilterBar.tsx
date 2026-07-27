@@ -4,8 +4,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const RELEASES = [
   "All", "Rel-20", "Rel-19", "Rel-18", "Rel-17", "Rel-16", "Rel-15", "Rel-14",
-  "Rel-13", "Rel-12", "Rel-11", "Rel-10", "Rel-9", "Rel-8", "Rel-7", "Rel-6",
-  "Rel-5", "Rel-4", "Rel-2", "R99",
+  "Rel-13", "Rel-12", "Rel-11", "Rel-10", "Rel-9", "Rel-8",
 ];
 
 const CATEGORIES = [
@@ -13,14 +12,13 @@ const CATEGORIES = [
   "Security", "Management", "Services", "Study", "Reference",
 ];
 
-const GENERATIONS = ["All", "5G", "LTE", "3G"];
+const GENERATIONS = ["All", "5G", "LTE"];
 
 const NETWORK_LAYERS = ["All", "Radio Access Network", "Core Network", "Service", "Other"];
 
 const GENERATION_TECH_MAP: Record<string, string[]> = {
-  "5G": ["5G NR", "5G-Advanced", "5GC"],
+  "5G": ["5G NR", "5G-Advanced", "5GC", "NTN", "Network Slicing"],
   LTE: ["LTE", "LTE-Advanced", "LTE-Advanced Pro", "EPC", "VoLTE"],
-  "3G": ["UMTS", "GPRS"],
 };
 
 export default function FilterBar() {

@@ -28,4 +28,4 @@ export const CATALOG_RELEASES = [
 export const CATALOG_SERIES = ["22", "23", "24", "29", "33", "36", "37", "38"] as const;
 
 export const CATALOG_COVERAGE_LABEL =
-  "Catalog covers Rel-15–Rel-20 across currently published 3GPP series from the official FTP archive.";
+  "Catalog covers Rel-15–Rel-20 LTE and 5G series from the official FTP archive (2G/3G retired).";

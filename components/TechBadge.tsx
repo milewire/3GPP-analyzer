@@ -5,11 +5,11 @@ const TECH_COLORS: Record<string, string> = {
   "5G NR": "#006633",
   "5G-Advanced": "#006633",
   "5GC": "#660099",
+  NTN: "#0B6E4F",
+  "Network Slicing": "#7C3AED",
   Security: "#CC3300",
   EPC: "#336699",
   IMS: "#996600",
-  UMTS: "#003399",
-  GPRS: "#336699",
   VoLTE: "#996600",
 };
 

@@ -1,8 +1,8 @@
-# 3GPP-Analyzer
+# 3GPP Analyzer
 
 AI-powered 3GPP specification database for RAN and telecom engineers — browse,
-search, and understand technical specifications with version tracking, release
-timelines, technology guides, glossary terms, and Claude-powered AI summaries
+search, and understand LTE and 5G technical specifications with version tracking,
+release timelines, technology guides, glossary terms, and Claude-powered AI summaries
 grounded in official Scope excerpts.
 
 **Live site:** [https://3gppsniffer.com](https://3gppsniffer.com)  
@@ -18,10 +18,13 @@ grounded in official Scope excerpts.
 
 ## Catalog Coverage
 
-Live ingest currently covers **Rel-15–Rel-20** across published 3GPP series from the
-public FTP archive. AI summaries prefer official Scope excerpts extracted from DOCX
-packages; specs without an excerpt show a short catalog-metadata note instead of
-invented content.
+Live ingest covers **Rel-15–Rel-20** LTE and 5G series from the public FTP archive.
+Discontinued **2G/3G** (GERAN/UTRAN) series are excluded from the catalog and ingest.
+Featured technology areas include **5G-Advanced**, **NTN**, **Network Slicing**, **5G NR**,
+and LTE evolution tracks.
+
+AI summaries prefer official Scope excerpts extracted from DOCX packages; specs without an
+excerpt show a short catalog-metadata note instead of invented content.
 
 ## Local Development
 
@@ -39,6 +42,10 @@ npm run db:seed
 npx wrangler d1 execute 3gpp-sniffer-db --local --file=./migrations/0001_ai_rate_limits.sql --yes
 npx wrangler d1 execute 3gpp-sniffer-db --local --file=./migrations/0002_source_excerpts.sql --yes
 npx wrangler d1 execute 3gpp-sniffer-db --local --file=./migrations/0003_catalog_accuracy.sql --yes
+npx wrangler d1 execute 3gpp-sniffer-db --local --file=./migrations/0004_ntn_and_retire_2g3g.sql --yes
+npx wrangler d1 execute 3gpp-sniffer-db --local --file=./migrations/0005_network_slicing.sql --yes
+npx wrangler d1 execute 3gpp-sniffer-db --local --file=./migrations/0006_purge_2g3g.sql --yes
+npx wrangler d1 execute 3gpp-sniffer-db --local --file=./migrations/0007_technology_icons.sql --yes
 
 # 2. Start the Worker API (port 8787)
 npm run worker:dev
@@ -84,6 +91,10 @@ npm run db:seed:remote
 npx wrangler d1 execute 3gpp-sniffer-db --remote --file=./migrations/0001_ai_rate_limits.sql --yes
 npx wrangler d1 execute 3gpp-sniffer-db --remote --file=./migrations/0002_source_excerpts.sql --yes
 npx wrangler d1 execute 3gpp-sniffer-db --remote --file=./migrations/0003_catalog_accuracy.sql --yes
+npx wrangler d1 execute 3gpp-sniffer-db --remote --file=./migrations/0004_ntn_and_retire_2g3g.sql --yes
+npx wrangler d1 execute 3gpp-sniffer-db --remote --file=./migrations/0005_network_slicing.sql --yes
+npx wrangler d1 execute 3gpp-sniffer-db --remote --file=./migrations/0006_purge_2g3g.sql --yes
+npx wrangler d1 execute 3gpp-sniffer-db --remote --file=./migrations/0007_technology_icons.sql --yes
 
 # Deploy the Worker
 npm run worker:deploy
@@ -100,7 +111,7 @@ npm run build
 - JSON-LD (`WebSite` + `SoftwareApplication`) sitewide; TechArticle on spec pages
 - Canonical URLs via `NEXT_PUBLIC_SITE_URL` (`lib/seo.ts`)
 - Spec pages use clean paths: `/spec/{specId}/{release}/` (legacy `?specNumber=` redirects)
-- `app/sitemap.ts` — home, listings, technologies, releases, glossary terms, and every versioned spec
+- `app/sitemap.ts` — home, listings, featured tech pages (NTN, Network Slicing, 5G-Advanced, …), releases, glossary terms, and every versioned spec
 - `app/robots.ts` — allows crawl and points to `/sitemap.xml`
 - Per-route `metadata` / `generateMetadata` on major pages
 
@@ -112,10 +123,10 @@ terms so the site works out of the box.
 Crawl specs from the public 3GPP FTP archive:
 
 ```bash
-# Default selected series across Rel-15–Rel-19
+# Default selected LTE/5G series across Rel-15–Rel-19
 npm run ingest
 
-# Discover every published series for a release
+# Discover published series for a release (GERAN/UTRAN series are skipped)
 node scripts/ingest.js --releases=Rel-15,Rel-16,Rel-17,Rel-18,Rel-19 --all-series
 npm run ingest:rel20
 ```

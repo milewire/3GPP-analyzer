@@ -10,7 +10,7 @@ export default function BrandLogo({
   priority?: boolean;
 }) {
   const imgProps = {
-    alt: "3GPP-Analyzer",
+    alt: "3GPP Analyzer",
     width,
     height,
     decoding: "async" as const,

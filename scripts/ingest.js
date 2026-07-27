@@ -17,7 +17,7 @@ const { DatabaseSync } = require("node:sqlite");
 const fs = require("node:fs");
 const path = require("node:path");
 const { findLocalD1Database } = require("./lib/local-d1");
-const { classifySpec } = require("./lib/classify-spec");
+const { classifySpec, isDiscontinuedSeries } = require("./lib/classify-spec");
 
 const LATEST_URL = "https://www.3gpp.org/ftp/Specs/latest/";
 const HTML_INFO_URL = "https://www.3gpp.org/ftp/Specs/html-info/";
@@ -337,9 +337,14 @@ async function main() {
   let total = 0;
   for (const release of opts.releases) {
     console.log(`\n=== ${release} ===`);
-    const releaseSeries = opts.allSeries
+    const releaseSeries = (opts.allSeries
       ? await discoverReleaseSeries(release)
-      : opts.series;
+      : opts.series
+    ).filter((series) => {
+      if (!isDiscontinuedSeries(series)) return true;
+      console.log(`  skip ${release}/${series}: discontinued GERAN/UTRAN series`);
+      return false;
+    });
     console.log(`Series for ${release}: ${releaseSeries.join(", ") || "none found"}`);
     for (const series of releaseSeries) {
       total += await ingestReleaseSeries(localDb, sqlLines, release, series, checkpoint, opts);

@@ -3,8 +3,7 @@ import { json, notFound, toPublicSpec } from "../util";
 
 const RELEASE_ORDER = [
   "Rel-20", "Rel-19", "Rel-18", "Rel-17", "Rel-16", "Rel-15", "Rel-14", "Rel-13",
-  "Rel-12", "Rel-11", "Rel-10", "Rel-9", "Rel-8", "Rel-7", "Rel-6", "Rel-5",
-  "Rel-4", "Rel-2", "R99",
+  "Rel-12", "Rel-11", "Rel-10", "Rel-9", "Rel-8",
 ];
 
 export async function listReleases(url: URL, env: Env): Promise<Response> {

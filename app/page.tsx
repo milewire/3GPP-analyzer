@@ -4,7 +4,7 @@ import SearchBar from "@/components/SearchBar";
 import SpecCard from "@/components/SpecCard";
 import BrandLogo from "@/components/BrandLogo";
 import { getTechnologies, getSpecs, getStats } from "@/lib/api";
-import { buildPageTitle, siteConfig } from "@/lib/seo";
+import { buildPageTitle, FEATURED_TECH_SLUGS, siteConfig } from "@/lib/seo";
 import { CATALOG_COVERAGE_LABEL } from "@/lib/coverage";
 
 export const metadata: Metadata = {
@@ -12,8 +12,6 @@ export const metadata: Metadata = {
   description: siteConfig.description,
   alternates: { canonical: "/" },
 };
-
-const HOMEPAGE_TECH_SLUGS = ["lte", "lte-advanced", "lte-advanced-pro", "5g", "5g-advanced", "ims", "epc", "security"];
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +22,10 @@ export default async function HomePage() {
     getStats(),
   ]);
 
-  const featuredTech = technologies.filter((t) => HOMEPAGE_TECH_SLUGS.includes(t.slug));
+  const techBySlug = new Map(technologies.map((t) => [t.slug, t]));
+  const featuredTech = FEATURED_TECH_SLUGS.map((slug) => techBySlug.get(slug)).filter(
+    (t): t is NonNullable<typeof t> => Boolean(t)
+  );
   const uniqueSpecs = stats.uniqueSpecifications ?? stats.specifications;
   const versionRows = stats.specificationVersions ?? uniqueSpecs;
 

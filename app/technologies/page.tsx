@@ -6,7 +6,7 @@ import { getTechnologies } from "@/lib/api";
 export const metadata: Metadata = {
   title: "Technologies",
   description:
-    "Explore 3GPP technology areas including LTE, LTE-Advanced, 5G NR, 5GC, IMS, security, and more.",
+    "Explore 3GPP technology areas including 5G-Advanced, NTN, network slicing, 5G NR, LTE, IMS, security, and more.",
   alternates: { canonical: "/technologies/" },
 };
 

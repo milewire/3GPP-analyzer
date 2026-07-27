@@ -11,14 +11,15 @@ export function getSiteUrl(): string {
 }
 
 export const siteConfig = {
-  name: "3GPP-Analyzer",
-  shortName: "3GPP-Analyzer",
+  name: "3GPP Analyzer",
+  shortName: "3GPP Analyzer",
   tagline: "AI-powered 3GPP specification database",
   description:
-    "Browse and search 3GPP technical specifications (Rel-15–Rel-20) with version tracking, release timelines, RAN technology guides, glossary terms, and AI summaries grounded in official Scope excerpts.",
+    "Browse and search 3GPP LTE and 5G technical specifications (Rel-15–Rel-20) with version tracking, release timelines, technology guides for NR, NTN, network slicing, glossary terms, and AI summaries grounded in official Scope excerpts.",
   keywords: [
     "3GPP",
     "3GPP specifications",
+    "3GPP Analyzer",
     "3GPP FTP",
     "TS",
     "TR",
@@ -29,10 +30,19 @@ export const siteConfig = {
     "5G",
     "5G NR",
     "5G-Advanced",
+    "5GC",
+    "NTN",
+    "Non-Terrestrial Networks",
+    "network slicing",
+    "S-NSSAI",
     "LTE",
     "LTE-Advanced",
+    "LTE-Advanced Pro",
     "E-UTRAN",
     "NG-RAN",
+    "IMS",
+    "EPC",
+    "VoLTE",
     "Rel-15",
     "Rel-16",
     "Rel-17",
@@ -40,13 +50,25 @@ export const siteConfig = {
     "Rel-19",
     "Rel-20",
     "telecom standards",
-    "3GPP-Analyzer",
-    "3GPP Analyzer",
   ],
   locale: "en_US",
   creator: "Milewire",
   twitterHandle: "",
 };
+
+/** Featured technology slugs used for homepage and sitemap priority. Newest first. */
+export const FEATURED_TECH_SLUGS = [
+  "5g-advanced",
+  "ntn",
+  "network-slicing",
+  "5g",
+  "lte-advanced-pro",
+  "lte-advanced",
+  "lte",
+  "ims",
+  "epc",
+  "security",
+] as const;
 
 export function absoluteUrl(path = "/"): string {
   const base = getSiteUrl();

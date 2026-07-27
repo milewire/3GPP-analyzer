@@ -11,12 +11,12 @@ const QUICK_LINKS = [
 ];
 
 const TECH_LINKS = [
-  { label: "5G", href: "/technology/5g/" },
+  { label: "5G-Advanced", href: "/technology/5g-advanced/" },
+  { label: "NTN", href: "/technology/ntn/" },
+  { label: "Network Slicing", href: "/technology/network-slicing/" },
+  { label: "5G NR", href: "/technology/5g/" },
   { label: "LTE-A Pro", href: "/technology/lte-advanced-pro/" },
-  { label: "LTE-A", href: "/technology/lte-advanced/" },
   { label: "LTE", href: "/technology/lte/" },
-  { label: "VoLTE", href: "/technology/volte/" },
-  { label: "5GC", href: "/technology/5gc/" },
 ];
 
 export default function Footer() {
@@ -62,7 +62,7 @@ export default function Footer() {
       <div className="border-t border-bordera">
         <div className="container-page flex flex-col gap-2 py-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
           <p>Data sourced from 3GPP FTP server. This is an unofficial community tool.</p>
-          <p>© {new Date().getFullYear()} 3GPP-Analyzer. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} 3GPP Analyzer. All rights reserved.</p>
         </div>
       </div>
     </footer>

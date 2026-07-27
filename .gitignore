@@ -25,7 +25,9 @@ npm-debug.log*
 Thumbs.db
 .idea/
 .vscode/
+.cursor/
 *.swp
+*.swo
 
 # Ingest / local state / generated SQL dumps
 scripts/.ingest-checkpoint.json
@@ -34,6 +36,11 @@ scripts/ingest-out.sql
 scripts/backfill-out.sql
 scripts/source-excerpts*.sql
 scripts/_probe-ftp.js
+
+# Local scratch / generated assets outside public/
+tmp/
+temp/
+*.tmp
 
 # Vercel
 .vercel/

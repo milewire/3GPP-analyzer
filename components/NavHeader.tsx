@@ -19,7 +19,7 @@ export default function NavHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-bordera bg-surface">
       <div className="container-page flex h-20 items-center justify-between sm:h-24">
-        <Link href="/" className="flex shrink-0 items-center" aria-label="3GPP-Analyzer home">
+        <Link href="/" className="flex shrink-0 items-center" aria-label="3GPP Analyzer home">
           <BrandLogo width={480} height={120} className="h-12 w-auto sm:h-16" priority />
         </Link>
 

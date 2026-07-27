@@ -9,16 +9,14 @@ export const lteSections: TechSection[] = [
       <Prose>
         <p>
           Long Term Evolution (LTE) is 3GPP's fourth-generation radio access technology, standardized
-          starting in Release 8. It replaced the WCDMA/HSPA air interface with OFDMA in the downlink and
-          SC-FDMA in the uplink, and flattened the radio access network by merging the Node B and RNC
-          functions into a single element, the eNodeB, connected directly to an all-IP core network (the
-          Evolved Packet Core).
+          starting in Release 8. It introduced OFDMA in the downlink and SC-FDMA in the uplink, and
+          flattened the radio access network into a single element, the eNodeB, connected directly to an
+          all-IP core network (the Evolved Packet Core).
         </p>
         <p>
-          LTE was designed for packet-switched data from the outset, with voice delivered either via
-          circuit-switched fallback (CSFB) to 2G/3G or, from Release 9 onward, natively over IP via VoLTE.
-          It remains the dominant global radio access technology and continues to anchor many non-standalone
-          5G deployments (EN-DC).
+          LTE was designed for packet-switched data from the outset, with voice delivered natively over
+          IP via VoLTE from Release 9 onward. It remains a major global radio access technology and
+          continues to anchor many non-standalone 5G deployments (EN-DC).
         </p>
         <SpecRefs numbers={["TS 36.201", "TS 36.300"]} />
       </Prose>
@@ -145,7 +143,6 @@ export const lteSections: TechSection[] = [
           "VoLTE — voice delivered as IMS-anchored VoIP over a dedicated GBR bearer",
           "SMS over IP (SGs or IMS)",
           "eMBMS — evolved Multimedia Broadcast Multicast Service for broadcast video/data",
-          "Circuit-switched fallback (CSFB) to UTRAN/GERAN for voice on networks without VoLTE",
         ]}
       />
     ),
@@ -228,12 +225,12 @@ export const lteSections: TechSection[] = [
     title: "Interworking",
     body: (
       <Table
-        headers={["Aspect", "LTE / EPC", "UMTS / GPRS"]}
+        headers={["Aspect", "LTE / EPC", "5G NR / 5GC"]}
         rows={[
-          ["Core network", "Evolved Packet Core (flat, all-IP)", "GPRS core (SGSN/GGSN)"],
-          ["Handover interface", "S3/S4 (Gn/Gp-based interworking)", "Iu / Gb"],
-          ["Voice", "VoLTE (IMS) or CSFB to 2G/3G", "Native circuit-switched voice"],
-          ["Mobility procedure", "Tracking Area Update (TAU)", "Routing Area Update (RAU)"],
+          ["Core network", "Evolved Packet Core (flat, all-IP)", "Service-based 5G Core"],
+          ["Handover interface", "S1 / X2", "N2 / Xn (or N26 for EPC interworking)"],
+          ["Voice", "VoLTE (IMS)", "VoNR (IMS) or EPS fallback"],
+          ["Mobility procedure", "Tracking Area Update (TAU)", "Registration / mobility registration update"],
         ]}
       />
     ),
@@ -263,21 +260,6 @@ export const lteSections: TechSection[] = [
           ["Diff_TA_Report", "Rel-9", "Differential timing advance reporting for positioning"],
           ["SON_enh1", "Rel-9/10", "Self-organizing network enhancements"],
           ["LTE_CA-Core", "Rel-10", "Carrier aggregation core specification work"],
-        ]}
-      />
-    ),
-  },
-  {
-    id: "comparison",
-    title: "Comparison with Previous Generations",
-    body: (
-      <Table
-        headers={["Aspect", "GPRS/EDGE (2.5G)", "UMTS/HSPA (3G)", "LTE (4G)"]}
-        rows={[
-          ["Access", "TDMA", "WCDMA", "OFDMA/SC-FDMA"],
-          ["Peak DL rate", "~236 kbps (EDGE)", "~42 Mbps (HSPA+)", "~300 Mbps (Rel-8, 2x2 20 MHz)"],
-          ["Core network", "GPRS core (SGSN/GGSN)", "UMTS core (evolved GPRS core)", "EPC (flat, all-IP)"],
-          ["RAN architecture", "BSC/BTS", "RNC/Node B", "eNodeB only (flat)"],
         ]}
       />
     ),
