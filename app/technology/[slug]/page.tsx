@@ -63,7 +63,7 @@ export default async function TechnologyDetailPage({ params }: { params: { slug:
             </span>
           )}
         </div>
-        <h1 className="mt-3 text-3xl font-extrabold text-darktext sm:text-4xl">{technology.name}</h1>
+          <h1 className="mt-3 text-2xl font-extrabold text-darktext sm:text-3xl md:text-4xl">{technology.name}</h1>
         {technology.full_name && <p className="mt-1 text-lg text-secondary">{technology.full_name}</p>}
         {releaseTags.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-2">

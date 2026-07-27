@@ -65,7 +65,7 @@ export default async function ReleaseDetailPage({
 
       <header className="mb-8">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-3xl font-extrabold text-darktext">Release {release.name}</h1>
+          <h1 className="text-2xl font-extrabold text-darktext sm:text-3xl">Release {release.name}</h1>
           <span className="rounded-full border border-borderb bg-surface px-3 py-1 text-sm font-semibold text-secondary">
             {release.generation}
           </span>

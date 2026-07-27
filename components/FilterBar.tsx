@@ -57,14 +57,14 @@ export default function FilterBar() {
   }
 
   return (
-    <div className="flex flex-col gap-4 rounded-lg border border-bordera bg-surface p-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <label className="flex flex-1 items-center gap-2 text-sm text-secondary sm:flex-none">
+    <div className="flex flex-col gap-4 rounded-lg border border-bordera bg-surface p-3 sm:p-4">
+      <div className="grid grid-cols-1 gap-3 sm:flex sm:flex-wrap sm:items-center">
+        <label className="flex flex-col gap-1 text-sm text-secondary sm:flex-row sm:items-center sm:gap-2">
           Release
           <select
             value={currentRelease}
             onChange={(e) => setParam("release", e.target.value)}
-            className="min-w-0 flex-1 rounded border border-borderb bg-surface px-2 py-1.5 text-sm text-darktext sm:flex-none"
+            className="w-full min-w-0 rounded border border-borderb bg-surface px-2 py-2.5 text-sm text-darktext sm:w-auto sm:py-1.5"
           >
             {RELEASES.map((r) => (
               <option key={r} value={r}>
@@ -74,12 +74,12 @@ export default function FilterBar() {
           </select>
         </label>
 
-        <label className="flex flex-1 items-center gap-2 text-sm text-secondary sm:flex-none">
+        <label className="flex flex-col gap-1 text-sm text-secondary sm:flex-row sm:items-center sm:gap-2">
           Category
           <select
             value={currentCategory}
             onChange={(e) => setParam("category", e.target.value)}
-            className="min-w-0 flex-1 rounded border border-borderb bg-surface px-2 py-1.5 text-sm text-darktext sm:flex-none"
+            className="w-full min-w-0 rounded border border-borderb bg-surface px-2 py-2.5 text-sm text-darktext sm:w-auto sm:py-1.5"
           >
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>
@@ -89,12 +89,12 @@ export default function FilterBar() {
           </select>
         </label>
 
-        <label className="flex flex-1 items-center gap-2 text-sm text-secondary sm:flex-none">
+        <label className="flex flex-col gap-1 text-sm text-secondary sm:flex-row sm:items-center sm:gap-2">
           Network Layer
           <select
             value={currentNetworkLayer}
             onChange={(e) => setParam("network_layer", e.target.value)}
-            className="min-w-0 flex-1 rounded border border-borderb bg-surface px-2 py-1.5 text-sm text-darktext sm:flex-none"
+            className="w-full min-w-0 rounded border border-borderb bg-surface px-2 py-2.5 text-sm text-darktext sm:w-auto sm:py-1.5"
           >
             {NETWORK_LAYERS.map((n) => (
               <option key={n} value={n}>
@@ -104,12 +104,13 @@ export default function FilterBar() {
           </select>
         </label>
 
-        <div className="flex w-full items-center justify-center gap-1 rounded border border-borderb p-1 sm:ml-auto sm:w-auto">
+        <div className="flex w-full items-center justify-stretch gap-1 rounded border border-borderb p-1 sm:ml-auto sm:w-auto sm:justify-center">
           {["All", "TS", "TR"].map((t) => (
             <button
               key={t}
+              type="button"
               onClick={() => setParam("type", t)}
-              className={`rounded px-3 py-1 text-sm font-medium transition ${
+              className={`flex-1 rounded px-3 py-2 text-sm font-medium transition sm:flex-none sm:py-1 ${
                 currentType === t ? "bg-primary text-white" : "text-secondary hover:bg-offwhite"
               }`}
             >
@@ -120,12 +121,13 @@ export default function FilterBar() {
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm text-secondary">Generation:</span>
+        <span className="w-full text-sm text-secondary sm:w-auto">Generation:</span>
         {GENERATIONS.map((g) => (
           <button
             key={g}
+            type="button"
             onClick={() => onGenerationChange(g)}
-            className={`rounded-full px-3 py-1 text-sm font-medium transition ${
+            className={`rounded-full px-3 py-2 text-sm font-medium transition sm:py-1 ${
               currentGeneration === g
                 ? "bg-accent text-black"
                 : "border border-borderb text-secondary hover:border-primary"

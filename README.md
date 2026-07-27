@@ -5,7 +5,7 @@ search, and understand LTE and 5G technical specifications with version tracking
 release timelines, technology guides, glossary terms, and Claude-powered AI summaries
 grounded in official Scope excerpts.
 
-**Live site:** [https://3gppsniffer.com](https://3gppsniffer.com)  
+**Live site:** [https://3gppanalyzer.com](https://3gppanalyzer.com)  
 **Repo:** [github.com/milewire/3GPP-analyzer](https://github.com/milewire/3GPP-analyzer)
 
 ## Stack
@@ -72,10 +72,27 @@ Copy `.env.example` → `.env.local` for frontend public env vars.
 wrangler secret put ANTHROPIC_API_KEY
 ```
 
-**Vercel (frontend only):**
+**Vercel (frontend only) — set these project env vars for Production/Preview:**
 
-- `NEXT_PUBLIC_API_URL=https://<your-worker>.workers.dev`
-- `NEXT_PUBLIC_SITE_URL=https://3gppsniffer.com`
+| Name | Value |
+|---|---|
+| `NEXT_PUBLIC_API_URL` | `https://3gpp-analyzer-worker.phillip-smith-151.workers.dev` (or `https://api.3gppanalyzer.com` after Cloudflare custom domain is live) |
+| `NEXT_PUBLIC_SITE_URL` | `https://3gppanalyzer.com` |
+
+Do **not** put `ANTHROPIC_API_KEY` in Vercel — that secret stays on the Cloudflare Worker (`wrangler secret put ANTHROPIC_API_KEY`).
+
+### Cloudflare domain setup (`3gppanalyzer.com`)
+
+The Worker is deployed as `3gpp-analyzer-worker`. To serve it on `api.3gppanalyzer.com`:
+
+1. In Cloudflare Dashboard → **Add a site** → enter `3gppanalyzer.com`
+2. At the registrar (**name.com** today), switch nameservers to the Cloudflare NS values shown
+3. Wait until the zone status is **Active**
+4. In `wrangler.toml`, uncomment the `[[routes]]` block for `api.3gppanalyzer.com`
+5. Run `npm run worker:deploy`
+6. Point Vercel `NEXT_PUBLIC_API_URL` at `https://api.3gppanalyzer.com`
+
+Until the zone is on Cloudflare, keep using the `workers.dev` URL above.
 
 ## Deployment
 
@@ -101,7 +118,7 @@ npm run worker:deploy
 
 # Build / deploy the Next.js app on Vercel
 # Set NEXT_PUBLIC_API_URL to the deployed Worker URL
-# Set NEXT_PUBLIC_SITE_URL to https://3gppsniffer.com
+# Set NEXT_PUBLIC_SITE_URL to https://3gppanalyzer.com
 npm run build
 ```
 

@@ -3,6 +3,7 @@ export interface Env {
   SPECS_BUCKET: R2Bucket;
   ANTHROPIC_API_KEY?: string;
   NEXT_PUBLIC_API_URL?: string;
+  NEXT_PUBLIC_SITE_URL?: string;
 }
 
 export interface SpecRow {

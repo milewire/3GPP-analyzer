@@ -1,4 +1,4 @@
-const fallbackSiteUrl = "https://3gppsniffer.com";
+const fallbackSiteUrl = "https://3gppanalyzer.com";
 
 export function getSiteUrl(): string {
   const raw =

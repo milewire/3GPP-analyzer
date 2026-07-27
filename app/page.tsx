@@ -32,42 +32,42 @@ export default async function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="border-b border-bordera bg-surface py-12 sm:py-20">
+      <section className="border-b border-bordera bg-surface py-10 sm:py-16 md:py-20">
         <div className="container-page text-center">
-          <div className="flex justify-center">
+          <div className="flex justify-center px-1">
             <BrandLogo
               width={960}
               height={240}
-              className="h-24 w-auto max-w-full sm:h-36 md:h-44"
+              className="h-16 w-auto max-w-full sm:h-28 md:h-36 lg:h-44"
               priority
             />
           </div>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-secondary">
+          <p className="mx-auto mt-4 max-w-2xl text-base text-secondary sm:text-lg">
             Growing collection of 3GPP technical specifications with AI-powered search, version
             tracking, and intelligent categorization.
           </p>
           <p className="mx-auto mt-3 max-w-2xl text-sm text-muted">{CATALOG_COVERAGE_LABEL}</p>
 
-          <div className="mt-8">
-            <SearchBar large />
+          <div className="mt-6 sm:mt-8">
+            <SearchBar large placeholder="Search specs (e.g. 38.331, RRC, NR)" />
           </div>
 
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
             <Link
               href="/specifications/"
-              className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white transition hover:bg-accent hover:text-black"
+              className="rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-accent hover:text-black sm:px-5"
             >
               All Specifications
             </Link>
             <Link
               href="/releases/"
-              className="rounded-full border border-borderb px-5 py-2 text-sm font-semibold text-secondary transition hover:border-primary hover:text-primary"
+              className="rounded-full border border-borderb px-4 py-2.5 text-sm font-semibold text-secondary transition hover:border-primary hover:text-primary sm:px-5"
             >
               Releases
             </Link>
             <Link
               href="/technologies/"
-              className="rounded-full border border-borderb px-5 py-2 text-sm font-semibold text-secondary transition hover:border-primary hover:text-primary"
+              className="rounded-full border border-borderb px-4 py-2.5 text-sm font-semibold text-secondary transition hover:border-primary hover:text-primary sm:px-5"
             >
               Technologies
             </Link>

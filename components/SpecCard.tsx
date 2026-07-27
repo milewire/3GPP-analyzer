@@ -17,7 +17,7 @@ export default function SpecCard({ spec }: { spec: Spec }) {
         <span className="spec-chip">{spec.spec_number}</span>
       </div>
       <div className="flex-1 min-w-0">
-        <h3 className="truncate text-base font-semibold text-darktext">{spec.title}</h3>
+        <h3 className="text-base font-semibold text-darktext sm:truncate">{spec.title}</h3>
         {spec.category && <p className="mt-0.5 text-sm text-secondary">{spec.category}</p>}
       </div>
       <div className="flex shrink-0 flex-wrap items-center gap-2">

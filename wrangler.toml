@@ -1,7 +1,9 @@
-name = "3gpp-sniffer-worker"
+name = "3gpp-analyzer-worker"
 main = "worker/index.ts"
 compatibility_date = "2024-01-01"
+workers_dev = true
 
+# D1/R2 keep existing Cloudflare resource names (data continuity).
 [[d1_databases]]
 binding = "DB"
 database_name = "3gpp-sniffer-db"
@@ -12,6 +14,13 @@ binding = "SPECS_BUCKET"
 bucket_name = "3gpp-sniffer-specs"
 
 [vars]
-NEXT_PUBLIC_API_URL = "http://localhost:8787"
+NEXT_PUBLIC_SITE_URL = "https://3gppanalyzer.com"
+NEXT_PUBLIC_API_URL = "https://3gpp-analyzer-worker.phillip-smith-151.workers.dev"
+
+# Custom domain for the API (requires 3gppanalyzer.com added as a Cloudflare zone).
+# After the zone is active, uncomment and redeploy:
+# [[routes]]
+# pattern = "api.3gppanalyzer.com"
+# custom_domain = true
 
 # Add secret: wrangler secret put ANTHROPIC_API_KEY
