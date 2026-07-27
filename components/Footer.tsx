@@ -62,7 +62,7 @@ export default function Footer() {
       <div className="border-t border-bordera">
         <div className="container-page flex flex-col gap-2 py-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
           <p>Data sourced from 3GPP FTP server. This is an unofficial community tool.</p>
-          <p>© {new Date().getFullYear()} 3GPP Sniffer. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} 3GPP-Analyzer. All rights reserved.</p>
         </div>
       </div>
     </footer>

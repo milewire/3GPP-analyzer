@@ -1,4 +1,4 @@
-# 3GPP Sniffer
+# 3GPP-Analyzer
 
 AI-powered 3GPP specification database for RAN and telecom engineers — browse,
 search, and understand technical specifications with version tracking, release
@@ -6,7 +6,7 @@ timelines, technology guides, glossary terms, and Claude-powered AI summaries
 grounded in official Scope excerpts.
 
 **Live site:** [https://3gppsniffer.com](https://3gppsniffer.com)  
-**Repo:** [github.com/milewire/3GPP-sniffer](https://github.com/milewire/3GPP-sniffer)
+**Repo:** [github.com/milewire/3GPP-analyzer](https://github.com/milewire/3GPP-analyzer)
 
 ## Stack
 

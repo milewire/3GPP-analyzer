@@ -26,7 +26,7 @@ from xml.etree import ElementTree
 ROOT = Path(__file__).resolve().parent.parent
 STATE_DIR = ROOT / ".wrangler" / "state" / "v3" / "d1" / "miniflare-D1DatabaseObject"
 NS = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
-USER_AGENT = "3gpp-sniffer-source-extractor/1.0"
+USER_AGENT = "3gpp-analyzer-source-extractor/1.0"
 
 
 def parse_args() -> argparse.Namespace:

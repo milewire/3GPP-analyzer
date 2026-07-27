@@ -11,8 +11,8 @@ export function getSiteUrl(): string {
 }
 
 export const siteConfig = {
-  name: "3GPP Sniffer",
-  shortName: "3GPP Sniffer",
+  name: "3GPP-Analyzer",
+  shortName: "3GPP-Analyzer",
   tagline: "AI-powered 3GPP specification database",
   description:
     "Browse and search 3GPP technical specifications (Rel-15–Rel-20) with version tracking, release timelines, RAN technology guides, glossary terms, and AI summaries grounded in official Scope excerpts.",
@@ -40,7 +40,8 @@ export const siteConfig = {
     "Rel-19",
     "Rel-20",
     "telecom standards",
-    "3GPP Sniffer",
+    "3GPP-Analyzer",
+    "3GPP Analyzer",
   ],
   locale: "en_US",
   creator: "Milewire",

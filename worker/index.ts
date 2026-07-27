@@ -44,7 +44,7 @@ export default {
       if (pathname === "/api/search") return search(url, env);
 
       if (pathname === "/" || pathname === "/api") {
-        return json({ name: "3gpp-sniffer-worker", status: "ok" });
+        return json({ name: "3gpp-analyzer-api", status: "ok" });
       }
 
       return notFound();

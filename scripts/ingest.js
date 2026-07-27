@@ -25,7 +25,7 @@ const DEFAULT_RELEASES = ["Rel-19", "Rel-18", "Rel-17", "Rel-16", "Rel-15"];
 const DEFAULT_SERIES = ["22", "23", "24", "29", "33", "36", "37", "38"];
 const RATE_LIMIT_MS = 350;
 const CHECKPOINT_PATH = path.join(__dirname, ".ingest-checkpoint.json");
-const UA = { "User-Agent": "3gpp-sniffer-ingest/1.0" };
+const UA = { "User-Agent": "3gpp-analyzer-ingest/1.0" };
 
 function parseArgs() {
   const args = process.argv.slice(2);

@@ -1,5 +1,5 @@
 {
-  "name": "3gpp-sniffer",
+  "name": "3gpp-analyzer",
   "version": "0.1.0",
   "private": true,
   "engines": {
